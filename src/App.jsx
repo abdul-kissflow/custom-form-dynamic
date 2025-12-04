@@ -2,6 +2,7 @@ import { DefaultLandingComponent } from './landing/index.jsx'
 import { CustomForm } from './components/CustomForm.jsx'
 import { useEffect } from 'react'
 import { kf } from './sdk/wrapper.jsx'
+import { DynamicForm } from './components/DynamicForm.jsx'
 
 function App() {
 
@@ -18,7 +19,13 @@ function App() {
         <div className="rootDiv">
             {/* This is a default placeholder component, 
 					remove this and add your own component */}
-                    <CustomForm />
+                    {/* <CustomForm /> */}
+            <DynamicForm
+                flowType="dataform"
+                flowId="Test_All_Fields_A00"
+                formInstanceId="PkCT9cShTOek"
+                title="Employee Form"
+            />
             {/* <DefaultLandingComponent /> */}
 
         </div>
