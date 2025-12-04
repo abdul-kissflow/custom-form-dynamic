@@ -149,7 +149,7 @@ export function useForm(flowType, flowId, instanceId) {
         async (fieldId, value) => {
             try {
                 setError(null)
-                const formInstance = getFormInstance()
+                const formInstance = await getFormInstance()
 
                 // Call form SDK updateField which validates through form store
                 await formInstance.updateField({ [fieldId]: value })

@@ -278,6 +278,7 @@ class Form extends BaseSDK {
   }
   updateField(args) {
     return this._postMessageAsync(LISTENER_CMDS.UPDATE_FORM, {
+      instanceId: this.instanceId,
       data: args
     });
   }
