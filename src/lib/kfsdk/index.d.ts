@@ -285,8 +285,9 @@ declare module "form/index" {
     import { BaseSDK } from "core/index";
     export class Form extends BaseSDK {
         private instanceId;
+        private flowId;
         type: string;
-        constructor(instanceId: string);
+        constructor(instanceId: string, flowId?: string);
         toJSON(): any;
         getField(fieldId: string): any;
         updateField(args: object): any;

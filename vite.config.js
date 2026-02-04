@@ -30,6 +30,11 @@ export default defineConfig({
     build: {
         target: 'es2022',
     },
+    resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
     server: {
         https: {
             cert: path.resolve('./cert/localhost.crt'),

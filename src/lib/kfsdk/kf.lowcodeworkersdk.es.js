@@ -271,10 +271,11 @@ class AtomicsHandler {
 _textEncoder = new WeakMap();
 _textDecoder = new WeakMap();
 class Form extends BaseSDK {
-  constructor(instanceId) {
+  constructor(instanceId, flowId) {
     super();
     this.type = "Form";
     this.instanceId = instanceId;
+    this.flowId = flowId;
   }
   toJSON() {
     return this._postMessageAsync(LISTENER_CMDS.TO_JSON, {
@@ -289,6 +290,7 @@ class Form extends BaseSDK {
   }
   updateField(args) {
     return this._postMessageAsync(LISTENER_CMDS.UPDATE_FORM, {
+      flowId: this.flowId,
       instanceId: this.instanceId,
       data: args
     });
@@ -633,14 +635,14 @@ class Dataform extends BaseSDK {
     });
   }
   getForm(instanceId) {
-    return new Form(instanceId);
+    return new Form(instanceId, this._id);
   }
   initForm(instanceId) {
     return this._postMessageAsync(LISTENER_CMDS.DATAFORM_INIT_FORM, {
       flowId: this._id,
       instanceId: instanceId || ""
     }).then((response) => {
-      return new Form(response.storeId || instanceId || "");
+      return new Form(response.storeId || instanceId || "", this._id);
     });
   }
 }

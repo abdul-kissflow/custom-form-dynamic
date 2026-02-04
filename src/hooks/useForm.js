@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { get } from 'react-hook-form'
 
 /**
  * Custom hook to manage form state with full validation and error handling
@@ -54,6 +55,40 @@ export function useForm(flowType, flowId, instanceId) {
     const [isNewRecord, setIsNewRecord] = useState(false)
     const originalDataRef = useRef({})
     const formInstanceRef = useRef(null)
+    const flowInstanceRef = useRef(null)
+
+    const getFlowInstance = useCallback(async () => {
+        if (!window.kf) {
+            throw new Error(
+                'SDK not initialized. Make sure window.kf is available.'
+            )
+        }
+
+        if (!flowType || !flowId) {
+            throw new Error('getFlowInstance requires both flowType and flowId')
+        }
+
+        // If we already have the instance for THIS flowType/flowId, reuse it
+        if (flowInstanceRef.current) {
+            return flowInstanceRef.current
+        }
+
+        if (flowType === 'dataform') {
+            flowInstanceRef.current = window.kf.app.getDataform(flowId)
+        } else if (flowType === 'board') {
+            flowInstanceRef.current = window.kf.app.getBoard(flowId)
+        } else if (flowType === 'process') {
+            flowInstanceRef.current = window.kf.app.getProcess(flowId)
+        } else {
+            throw new Error(`Unknown flow type: ${flowType}`)
+        }
+
+        return flowInstanceRef.current
+    }, [flowType, flowId]) // Add dependencies!
+
+    useEffect(() => {
+        getFlowInstance()
+    }, [flowType, flowId])
 
     // Get form instance from SDK - initializes form store
     const getFormInstance = useCallback(async () => {
@@ -69,22 +104,23 @@ export function useForm(flowType, flowId, instanceId) {
         }
 
         // Case 1: flowType and flowId provided (new usage: dataform, board, process)
-        if (flowType && flowId) {
+        if (flowId && flowType) {
             // Get the flow instance
-            let flowInstance
+            // let flowInstance
 
-            if (flowType === 'dataform') {
-                flowInstance = window.kf.app.getDataform(flowId)
-            } else if (flowType === 'board') {
-                flowInstance = window.kf.app.getBoard(flowId)
-            } else if (flowType === 'process') {
-                flowInstance = window.kf.app.getProcess(flowId)
-            } else {
-                throw new Error(`Unknown flow type: ${flowType}`)
-            }
+            // if (flowType === 'dataform') {
+            //     flowInstance = window.kf.app.getDataform(flowId)
+            // } else if (flowType === 'board') {
+            //     flowInstance = window.kf.app.getBoard(flowId)
+            // } else if (flowType === 'process') {
+            //     flowInstance = window.kf.app.getProcess(flowId)
+            // } else {
+            //     throw new Error(`Unknown flow type: ${flowType}`)
+            // }
 
             // Initialize form with schema, data, and form store
             // This handles fetching schema, item data, and initializing the form store
+            const flowInstance = await getFlowInstance()
             formInstanceRef.current = await flowInstance.initForm(instanceId)
             setIsNewRecord(!instanceId)
 
@@ -125,7 +161,7 @@ export function useForm(flowType, flowId, instanceId) {
                 const formInstance = await getFormInstance()
                 console.log('Form instance initialized:', formInstance)
                 const data = await formInstance.toJSON()
-                console.log('Form data loaded:', data)
+                console.log('Form data loaded in hook:', data)
 
                 setFormData(data || {})
                 originalDataRef.current = JSON.parse(JSON.stringify(data || {}))
@@ -144,6 +180,8 @@ export function useForm(flowType, flowId, instanceId) {
         }
     }, [flowType, flowId, instanceId, getFormInstance])
 
+
+
     // Update single field with validation
     const updateField = useCallback(
         async (fieldId, value) => {
@@ -151,17 +189,36 @@ export function useForm(flowType, flowId, instanceId) {
                 setError(null)
                 const formInstance = await getFormInstance()
 
+                // Get current form data to check if value actually changed
+                const currentData = await formInstance.toJSON()
+
+                // Only update if value actually changed
+                if (currentData[fieldId] === value) {
+                    console.log(
+                        `Field ${fieldId} unchanged (value: ${value}), skipping update`
+                    )
+                    return true
+                }
+
                 // Call form SDK updateField which validates through form store
-                await formInstance.updateField({ [fieldId]: value })
+                const { formData: updatedData, error } =
+                    await formInstance.updateField({ [fieldId]: value })
+                console.log(`Updating field ${fieldId} to value:`, value)
+                console.log(
+                    'Updated form data after field update:',
+                    updatedData
+                )
+                console.log('Updated error', error)
 
                 // Get updated form data to reflect any changes
-                const updatedData = await formInstance.toJSON()
+                // const updatedData = await formInstance.toJSON()
                 setFormData(updatedData || {})
 
                 // Get validation errors after update
-                const validationErrors =
-                    await formInstance.getValidationErrors()
-                setErrors(validationErrors || {})
+                // const validationErrors =
+                //     await formInstance.getValidationErrors()
+                //     console.log('Validation errors after field update:', validationErrors)
+                setErrors(error || {})
 
                 setIsDirty(true)
                 return true
@@ -179,16 +236,38 @@ export function useForm(flowType, flowId, instanceId) {
         async (updates) => {
             try {
                 setError(null)
-                const formInstance = getFormInstance()
+                const formInstance = await getFormInstance()
 
-                // Update each field
+                // Get current form data to check for changes
+                const currentData = await formInstance.toJSON()
+                let hasChanges = false
+
+                // Update each field that has actually changed
                 for (const [fieldId, value] of Object.entries(updates)) {
+                    if (currentData[fieldId] === value) {
+                        console.log(
+                            `Field ${fieldId} unchanged, skipping update`
+                        )
+                        continue
+                    }
+                    hasChanges = true
                     await formInstance.updateField({ [fieldId]: value })
+                    console.log(`Updating field ${fieldId} to value:`, value)
+                }
+
+                // Only proceed if there were actual changes
+                if (!hasChanges) {
+                    console.log('No fields changed, skipping update')
+                    return true
                 }
 
                 // Get updated form data
                 const updatedData = await formInstance.toJSON()
                 setFormData(updatedData || {})
+                console.log(
+                    'Updated form data after fields update:',
+                    updatedData
+                )
 
                 // Get validation errors after all updates
                 const validationErrors =
@@ -207,19 +286,17 @@ export function useForm(flowType, flowId, instanceId) {
     )
 
     const getFormData = useCallback(async () => {
-
         const formInstance = await getFormInstance()
         const data = await formInstance.toJSON()
-        console.log("Form Data from getFormData:", data)
+        console.log('Form Data from getFormData:', data)
         return data
-        
     }, [formData])
 
     // Get field details with validation info
     const getField = useCallback(
         async (fieldId) => {
             try {
-                const formInstance = getFormInstance()
+                const formInstance = await getFormInstance()
                 const field = await formInstance.getField(fieldId)
                 return field
             } catch (err) {
@@ -231,12 +308,30 @@ export function useForm(flowType, flowId, instanceId) {
         [getFormInstance]
     )
 
+    const getFieldOptions = useCallback(async (fieldId) => {
+        try {
+            const flowInstance = await getFlowInstance();
+            const formInstance = await getFormInstance();
+            const options = await flowInstance.getFieldOptions({
+                fieldId,
+                instanceId: formInstance.instanceId,
+            });
+            return options
+        } catch (err) {
+            setError(err.message || 'Failed to get field options')
+            console.error('Get field options error:', err)
+            throw err
+        }
+    }
+    , [getFlowInstance, getFormInstance]
+)
+    
     // Save form (check validations)
     const save = useCallback(async () => {
         try {
             setLoading(true)
             setError(null)
-            const formInstance = getFormInstance()
+            const formInstance = await getFormInstance()
 
             // Get current validation errors before save
             const validationErrors = await formInstance.getValidationErrors()
@@ -289,6 +384,7 @@ export function useForm(flowType, flowId, instanceId) {
         getField,
         save,
         reset,
-        getFormData
+        getFormData,
+        getFieldOptions,
     }
 }

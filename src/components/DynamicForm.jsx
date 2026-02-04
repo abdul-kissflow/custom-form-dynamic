@@ -1,11 +1,36 @@
 import { useEffect, useState } from 'react'
 import { useForm } from '../hooks/useForm'
+import {
+    TextField,
+    NumberField,
+    EmailField,
+    DateField,
+    DateTimeField,
+    TextareaField,
+    SelectField,
+    MultiSelectField,
+    CheckboxField,
+    BooleanField,
+    RadioField,
+    CurrencyField,
+    getFieldComponent,
+} from './fields'
+import { get } from 'react-hook-form'
+import { c } from 'vite/dist/node/types.d-aGj9QkWt'
 
 /**
  * Dynamic Form Component
  *
  * This component generates a form dynamically based on the formData returned by useForm.
- * All fields are rendered as text inputs for now. Different field types can be added later.
+ * Field types are rendered based on field configurations fetched from the API.
+ *
+ * Supported field types:
+ * - Text, Email, Number, Currency
+ * - Date, DateTime
+ * - Textarea
+ * - Select (Dropdown), Multiselect, Radio
+ * - Checkbox, Boolean
+ * - User, MultiUser
  *
  * Props:
  * - flowType: string - Type of flow ("dataform", "board", "process")
@@ -21,9 +46,10 @@ import { useForm } from '../hooks/useForm'
  *   title="Employee Form"
  * />
  */
-export function DynamicForm({ flowType = 'dataform', flowId="Test_All_Fields_A00", formInstanceId="PkCT9cShTOek", title = 'Dynamic Form' }) {
+export function DynamicForm({ flowType = 'dataform', flowId = 'Test_All_Fields_A00', formInstanceId = 'PkCT9cShTOek', title = 'Dynamic Form' }) {
     const [submitSuccess, setSubmitSuccess] = useState(false)
-    
+    const [fieldConfigs, setFieldConfigs] = useState({})
+
     // Initialize form hook
     const {
         formData,
@@ -34,16 +60,49 @@ export function DynamicForm({ flowType = 'dataform', flowId="Test_All_Fields_A00
         loading,
         error,
         isDirty,
-        isNewRecord
+        isNewRecord,
+        getFieldOptions
     } = useForm(flowType, flowId, formInstanceId)
-    
-    const [localState, setLocalState] = useState(formData)
 
+
+// const [localState, setLocalState] = useState(formData)
+
+    // useEffect(() => {
+    //     setLocalState(formData)
+    // }, [formData])
+    // Fetch field configurations from API
     useEffect(() => {
-        setLocalState(formData)
-    }, [formData])
-    // Handle input change
-    const handleFieldChange = async (fieldId, value) => {
+        const fetchFieldConfigs = async () => {
+            try {
+                if (typeof window.kf !== 'undefined' && window.kf?.api) {
+                    const configs = await window.kf.api(
+                        `/form/2/${window.kf.account._id}/${flowId}/fields`
+                    )
+                    if (Array.isArray(configs)) {
+                        // Convert array to object keyed by field ID for easier lookup
+                        const configMap = {}
+                        configs.forEach((config) => {
+                            configMap[config.Id] = config
+                        })
+                        setFieldConfigs(configMap)
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to fetch field configuration:', err)
+            }
+        }
+
+        fetchFieldConfigs()
+    }, [flowId])
+
+    // Update local state immediately for instant feedback (onChange)
+    const handleLocalChange = (fieldId, value) => {
+        console.log(`Field ${fieldId} changed to:`, value)
+        // setLocalState((prev) => ({ ...prev, [fieldId]: value }))
+    }
+
+    // Update field on blur (onBlur) - calls API and triggers validation
+    const handleFieldBlur = async (fieldId, value) => {
         try {
             await updateField(fieldId, value)
             setSubmitSuccess(false)
@@ -52,14 +111,6 @@ export function DynamicForm({ flowType = 'dataform', flowId="Test_All_Fields_A00
         }
     }
 
-      const handleLocalFieldChange = async (fieldId, value) => {
-        try {
-            setLocalState((prev)=> ({...prev, [fieldId]: value}))
-            // setSubmitSuccess(false)
-        } catch (err) {
-            console.error('Field update failed:', err)
-        }
-    }
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -85,32 +136,56 @@ export function DynamicForm({ flowType = 'dataform', flowId="Test_All_Fields_A00
         setSubmitSuccess(false)
     }
 
-    // Convert field ID to readable label (e.g., "firstName" -> "First Name")
-    const getFieldLabel = (fieldId) => {
-        return fieldId
-            .replace(/([A-Z])/g, ' $1') // Insert space before uppercase letters
-            .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
-            .trim()
+    // Get the field component based on field type
+    const getFieldComponentByType = (fieldConfig) => {
+        if (!fieldConfig) {
+            return TextField
+        }
+
+        const componentName = getFieldComponent(fieldConfig.Type, fieldConfig.Widget)
+
+        const componentMap = {
+            'TextField': TextField,
+            'NumberField': NumberField,
+            'EmailField': EmailField,
+            'DateField': DateField,
+            'DateTimeField': DateTimeField,
+            'TextareaField': TextareaField,
+            'SelectField': SelectField,
+            'MultiSelectField': MultiSelectField,
+            'CheckboxField': CheckboxField,
+            'BooleanField': BooleanField,
+            'RadioField': RadioField,
+            'CurrencyField': CurrencyField,
+        }
+
+        return componentMap[componentName] || TextField
     }
 
-    // Get all field IDs from formData
-    const fieldIds = Object.keys(formData)
+    // Filter out system fields (those starting with _) unless needed
+    const fieldIds = Object.keys(fieldConfigs).filter(
+        (fieldId) => !fieldId.startsWith('_')
+    )
+
+    // console.log('Rendering DynamicForm with fields:', fieldIds)
+    // console.log('Field Configurations:', fieldConfigs)
+    // console.log('Form Data:', formData)
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-12 px-4 sm:px-6 lg:px-8">
-            <div className=" mx-auto">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-100 to-slate-200 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 mb-2">
                         {title}
                     </h1>
-                    <div className="h-1 w-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"></div>
+                    <div className="h-1 w-24 bg-linear-to-r from-blue-500 to-blue-600 rounded-full"></div>
                 </div>
 
                 {/* General error message */}
                 {error && (
                     <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                        <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                         </svg>
                         <span className="text-red-800">{error}</span>
@@ -120,7 +195,7 @@ export function DynamicForm({ flowType = 'dataform', flowId="Test_All_Fields_A00
                 {/* Success message */}
                 {submitSuccess && (
                     <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-                        <svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
                         <span className="text-green-800 font-medium">Form saved successfully!</span>
@@ -130,7 +205,7 @@ export function DynamicForm({ flowType = 'dataform', flowId="Test_All_Fields_A00
                 {/* New record indicator */}
                 {isNewRecord && (
                     <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
-                        <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-blue-600 shrink-0 mt-0.5 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -143,49 +218,27 @@ export function DynamicForm({ flowType = 'dataform', flowId="Test_All_Fields_A00
                     <form onSubmit={handleSubmit}>
                         {/* Form Fields */}
                         <div className="p-8">
-                            {fieldIds.length > 0 ? (
-                                <div className="grid grid-cols-3 gap-6">
-                                    {fieldIds.map((fieldId) => (
-                                        <div key={fieldId} className="space-y-2">
-                                            <label
-                                                htmlFor={fieldId}
-                                                className="block text-sm font-semibold text-gray-700"
-                                            >
-                                                {getFieldLabel(fieldId)}
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    id={fieldId}
-                                                    type="text"
-                                                    name={fieldId}
-                                                    value={localState[fieldId] || ''}
-                                                    onChange={(e) =>
-                                                        handleLocalFieldChange(fieldId, e.target.value)
-                                                    }
-                                                    onBlur={(e) =>
-                                                        handleFieldChange(fieldId, e.target.value)
-                                                    }
-                                                    
-                                                    placeholder={`Enter ${getFieldLabel(fieldId).toLowerCase()}`}
-                                                    className={`w-full px-4 py-2.5 text-gray-900 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                                        errors[fieldId]
-                                                            ? 'border-red-300 bg-red-50'
-                                                            : 'border-gray-300 bg-white hover:border-gray-400'
-                                                    }`}
-                                                />
-                                            </div>
-                                            {errors[fieldId] && (
-                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1.5">
-                                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M18.101 12.93a1 1 0 00-1.414-1.414L10 15.586 7.707 13.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8.5-8.5z" clipRule="evenodd" />
-                                                    </svg>
-                                                    {Array.isArray(errors[fieldId])
-                                                        ? errors[fieldId][0]
-                                                        : errors[fieldId]}
-                                                </p>
-                                            )}
-                                        </div>
-                                    ))}
+                            {fieldIds.length > 0 && !loading? (
+                                <div className="grid gap-6 md:grid-cols-2">
+                                    {fieldIds.map((fieldId) => {
+                                        const fieldConfig = fieldConfigs[fieldId]
+                                        const FieldComponent = getFieldComponentByType(fieldConfig)
+
+                                        return (
+                                            // <FieldComponent
+                                            //     key={fieldId}
+                                            //     field={fieldConfig || { Id: fieldId, Name: fieldId, Type: 'Text', Required: false }}
+                                            //     value={formData[fieldId]}
+                                            //     onChange={(value) => handleLocalChange(fieldId, value)}
+                                            //     onBlur={(value) => handleFieldBlur(fieldId, value)}
+                                            //     error={errors[fieldId]}
+                                            //     disabled={loading}
+                                            //     // options={async()=> await getFieldOptions(fieldId)}
+                                            //     getFieldOptions={getFieldOptions}
+                                            // />
+                                            <div key={fieldId}>asdasd</div>
+                                        )
+                                    })}
                                 </div>
                             ) : (
                                 <div className="text-center py-12">
@@ -269,7 +322,7 @@ export function DynamicForm({ flowType = 'dataform', flowId="Test_All_Fields_A00
                                         <div className="text-center">
                                             <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Errors</p>
                                             <p className={`text-sm font-semibold mt-1 ${Object.keys(errors).length > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                                {Object.keys(errors).length}
+                                                {Object.keys(errors["_root"]|| {}).length}
                                             </p>
                                         </div>
                                         <div className="text-center">
@@ -304,6 +357,16 @@ export function DynamicForm({ flowType = 'dataform', flowId="Test_All_Fields_A00
                                 Validation Errors (Debug)
                             </summary>
                             <pre className="px-6 py-4 bg-gray-50 border-t border-gray-200 text-xs overflow-x-auto text-gray-800">{JSON.stringify(errors, null, 2)}</pre>
+                        </details>
+
+                        <details className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                            <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-700 flex items-center gap-2">
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM15 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2zM5 13a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5z" />
+                                </svg>
+                                Field Configurations (Debug)
+                            </summary>
+                            <pre className="px-6 py-4 bg-gray-50 border-t border-gray-200 text-xs overflow-x-auto text-gray-800">{JSON.stringify(fieldConfigs, null, 2)}</pre>
                         </details>
                     </div>
                 )}

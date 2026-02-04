@@ -21,10 +21,7 @@ function App() {
 					remove this and add your own component */}
                     {/* <CustomForm /> */}
             <DynamicForm
-                flowType="dataform"
-                flowId="Test_All_Fields_A00"
-                formInstanceId="PkCT9cShTOek"
-                title="Employee Form"
+               flowType = 'dataform' flowId = 'Test_All_Fields_A00' formInstanceId = 'PkCT9cShTOek' title = 'Dynamic Form'
             />
             {/* <DefaultLandingComponent /> */}
 

@@ -1,4 +1,5 @@
-import KFSDK from "../lib/kfsdk/kfsdk.es"
+// import KFSDK from "../lib/kfsdk/kfsdk.es"
+import KFSDK from "/Users/sooryakanth/Desktop/Work/Apps/Product/kf-codebase/frontend/lcnc-sdk-js/packages/sdk/dist/kfsdk.es"
 import React, { useState, useEffect } from 'react'
 
 let kf
