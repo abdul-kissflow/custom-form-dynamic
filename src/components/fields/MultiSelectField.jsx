@@ -9,6 +9,10 @@ export function MultiSelectField({ field, value, onChange, onBlur, error, disabl
     const [selectedValues, setSelectedValues] = useState(Array.isArray(value) ? value : [])
 
     useEffect(() => {
+        setSelectedValues(Array.isArray(value) ? value : [])
+    }, [value])
+
+    useEffect(() => {
         const fetchOptions = async () => {
 
             setLoading(true)

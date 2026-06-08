@@ -13,6 +13,12 @@ import {
     BooleanField,
     RadioField,
     CurrencyField,
+    RatingField,
+    SliderField,
+    UserSelectField,
+    MultiUserSelectField,
+    SequenceNumberField,
+    AggregationField,
     getFieldComponent,
 } from './fields'
 
@@ -108,6 +114,12 @@ export function DynamicForm({
             BooleanField,
             RadioField,
             CurrencyField,
+            RatingField,
+            SliderField,
+            UserSelectField,
+            MultiUserSelectField,
+            SequenceNumberField,
+            AggregationField,
         }
         return componentMap[componentName] || TextField
     }

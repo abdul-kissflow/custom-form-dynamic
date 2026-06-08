@@ -10,6 +10,12 @@ export { CheckboxField } from './CheckboxField'
 export { BooleanField } from './BooleanField'
 export { RadioField } from './RadioField'
 export { CurrencyField } from './CurrencyField'
+export { RatingField } from './RatingField'
+export { SliderField } from './SliderField'
+export { UserSelectField } from './UserSelectField'
+export { MultiUserSelectField } from './MultiUserSelectField'
+export { SequenceNumberField } from './SequenceNumberField'
+export { AggregationField } from './AggregationField'
 
 // Field type mapper
 export const fieldTypeMap = {
@@ -25,8 +31,11 @@ export const fieldTypeMap = {
     'Boolean': 'BooleanField',
     'Radio': 'RadioField',
     'Currency': 'CurrencyField',
-    'User': 'SelectField', // Single user select
-    'MultiUser': 'MultiSelectField', // Multiple user select
+    'User': 'UserSelectField', // Single user select
+    'MultiUser': 'MultiUserSelectField', // Multiple user select
+    'StarRating': 'RatingField',
+    'Slider': 'SliderField',
+    'SequenceNumber': 'SequenceNumberField',
 }
 
 /**
@@ -39,6 +48,12 @@ export function getFieldComponent(fieldType, widget) {
     // Handle widget-specific rendering (e.g., Radio widget for Select type)
     if (fieldType === 'Select' && widget === 'Radio') {
         return 'RadioField'
+    }
+
+    // Aggregation fields carry their *display* type in `Type` (Number, Currency,
+    // Text, Date, DateTime) and are identified by `Widget === 'Aggregation'`
+    if (widget === 'Aggregation') {
+        return 'AggregationField'
     }
 
     // console.log(fieldTypeMap[fieldType] || 'TextField')

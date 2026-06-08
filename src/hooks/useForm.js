@@ -142,10 +142,12 @@ export function useForm(flowType, flowId, instanceId) {
                 const currentData = await formInstance.toJSON()
                 if (currentData[fieldId] === value) return true
 
-                const { formData: updatedData, error: fieldError } =
                     await formInstance.updateField({ [fieldId]: value })
+                const updatedData = await formInstance.toJSON()
+
                 setFormData(updatedData || {})
-                setErrors(fieldError || {})
+                const validationErrors = await formInstance.getValidationErrors()
+                setErrors(validationErrors || {})
                 setIsDirty(true)
                 return true
             } catch (err) {

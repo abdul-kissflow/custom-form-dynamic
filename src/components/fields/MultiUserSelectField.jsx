@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 
-export function CheckboxField({ field, value, onChange, onBlur, error, disabled = false, getFieldOptions }) {
+const userId = (user) => user?._id || user
+const userLabel = (user) => user?.Name || user?.name || user?.Email || user
+
+export function MultiUserSelectField({ field, value, onChange, onBlur, error, disabled = false, getFieldOptions }) {
     const [fieldOptions, setFieldOptions] = useState([])
     const [loading, setLoading] = useState(false)
-    const selectedValues = Array.isArray(value) ? value : []
+    const selectedUsers = Array.isArray(value) ? value : []
 
     useEffect(() => {
         const fetchOptions = async () => {
@@ -22,12 +25,15 @@ export function CheckboxField({ field, value, onChange, onBlur, error, disabled 
         fetchOptions()
     }, [])
 
-    const handleChange = (option, checked) => {
+    const isSelected = (user) => selectedUsers.some((selected) => userId(selected) === userId(user))
+
+    const handleChange = (user, checked) => {
         const next = checked
-            ? [...selectedValues, option]
-            : selectedValues.filter((item) => item !== option)
-        onChange(next)
-        onBlur(next)
+            ? [...selectedUsers.filter((selected) => userId(selected) !== userId(user)), user]
+            : selectedUsers.filter((selected) => userId(selected) !== userId(user))
+        const updated = next.length ? next : null
+        onChange(updated)
+        onBlur(updated)
     }
 
     return (
@@ -38,30 +44,26 @@ export function CheckboxField({ field, value, onChange, onBlur, error, disabled 
             </label>
             <div className="space-y-2 border border-gray-300 rounded-lg p-3">
                 {loading ? (
-                    <p className="text-sm text-gray-500">Loading options...</p>
+                    <p className="text-sm text-gray-500">Loading users...</p>
                 ) : fieldOptions.length > 0 ? (
-                    fieldOptions.map((option) => {
-                        const optionValue = option?._id || option?.name || option
-                        const optionLabel = option?.Name || option?.name || option
-                        return (
-                            <div key={optionValue} className="flex items-center gap-2">
-                                <Checkbox
-                                    id={`${field.Id}-${optionValue}`}
-                                    checked={selectedValues.includes(optionValue)}
-                                    onCheckedChange={(checked) => handleChange(optionValue, checked)}
-                                    disabled={disabled || field.ReadOnly}
-                                />
-                                <label
-                                    htmlFor={`${field.Id}-${optionValue}`}
-                                    className="text-sm cursor-pointer"
-                                >
-                                    {optionLabel}
-                                </label>
-                            </div>
-                        )
-                    })
+                    fieldOptions.map((user) => (
+                        <div key={userId(user)} className="flex items-center gap-2">
+                            <Checkbox
+                                id={`${field.Id}-${userId(user)}`}
+                                checked={isSelected(user)}
+                                onCheckedChange={(checked) => handleChange(user, checked)}
+                                disabled={disabled || field.ReadOnly}
+                            />
+                            <label
+                                htmlFor={`${field.Id}-${userId(user)}`}
+                                className="text-sm cursor-pointer"
+                            >
+                                {userLabel(user)}
+                            </label>
+                        </div>
+                    ))
                 ) : (
-                    <p className="text-sm text-gray-500">No options available</p>
+                    <p className="text-sm text-gray-500">No users available</p>
                 )}
             </div>
             {error && (
