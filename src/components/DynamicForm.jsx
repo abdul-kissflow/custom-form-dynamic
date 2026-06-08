@@ -19,6 +19,7 @@ import {
     MultiUserSelectField,
     SequenceNumberField,
     AggregationField,
+    ImageField,
     getFieldComponent,
 } from './fields'
 
@@ -120,6 +121,7 @@ export function DynamicForm({
             MultiUserSelectField,
             SequenceNumberField,
             AggregationField,
+            ImageField,
         }
         return componentMap[componentName] || TextField
     }

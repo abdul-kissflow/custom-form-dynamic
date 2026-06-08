@@ -16,6 +16,7 @@ export { UserSelectField } from './UserSelectField'
 export { MultiUserSelectField } from './MultiUserSelectField'
 export { SequenceNumberField } from './SequenceNumberField'
 export { AggregationField } from './AggregationField'
+export { ImageField } from './ImageField'
 
 // Field type mapper
 export const fieldTypeMap = {
@@ -36,6 +37,7 @@ export const fieldTypeMap = {
     'StarRating': 'RatingField',
     'Slider': 'SliderField',
     'SequenceNumber': 'SequenceNumberField',
+    'Image': 'ImageField',
 }
 
 /**
