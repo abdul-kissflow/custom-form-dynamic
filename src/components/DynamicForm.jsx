@@ -20,6 +20,9 @@ import {
     SequenceNumberField,
     AggregationField,
     ImageField,
+    AttachmentField,
+    ChecklistField,
+    LookupField,
     getFieldComponent,
 } from './fields'
 
@@ -101,7 +104,7 @@ export function DynamicForm({
 
     // Resolve typed field component from field.type + field.widget
     const resolveFieldComponent = (field) => {
-        const componentName = getFieldComponent(field.type, field.widget)
+        const componentName = getFieldComponent(field.Type, field.Widget)
         const componentMap = {
             TextField,
             NumberField,
@@ -122,6 +125,9 @@ export function DynamicForm({
             SequenceNumberField,
             AggregationField,
             ImageField,
+            AttachmentField,
+            ChecklistField,
+            LookupField,
         }
         return componentMap[componentName] || TextField
     }
@@ -246,7 +252,10 @@ export function DynamicForm({
                                         // ── Field section ──────────────────────────
                                         if (section.type === 'Section') {
                                             return (
-                                                <div key={section.id}>
+                                                <div
+                                                    key={section.id}
+                                                    className="mt-8 first:mt-0"
+                                                >
                                                     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
                                                         {section.name}
                                                     </h3>
@@ -261,27 +270,22 @@ export function DynamicForm({
                                                             return (
                                                                 <FieldComponent
                                                                     key={
-                                                                        field.id
+                                                                        field.Id
                                                                     }
-                                                                    field={{
-                                                                        Id: field.id,
-                                                                        Name: field.name,
-                                                                        Type: field.type,
-                                                                        Widget: field.widget,
-                                                                        Required:
-                                                                            field.required,
-                                                                    }}
+                                                                    field={
+                                                                        field
+                                                                    }
                                                                     value={
                                                                         localState[
                                                                             field
-                                                                                .id
+                                                                                .Id
                                                                         ]
                                                                     }
                                                                     onChange={(
                                                                         value
                                                                     ) =>
                                                                         handleLocalChange(
-                                                                            field.id,
+                                                                            field.Id,
                                                                             value
                                                                         )
                                                                     }
@@ -289,14 +293,14 @@ export function DynamicForm({
                                                                         value
                                                                     ) =>
                                                                         handleFieldBlur(
-                                                                            field.id,
+                                                                            field.Id,
                                                                             value
                                                                         )
                                                                     }
                                                                     error={
                                                                         errors[
                                                                             field
-                                                                                .id
+                                                                                .Id
                                                                         ]
                                                                     }
                                                                     disabled={
@@ -322,7 +326,10 @@ export function DynamicForm({
                                                     `Table::${section.id}`
                                                 ] || []
                                             return (
-                                                <div key={section.id}>
+                                                <div
+                                                    key={section.id}
+                                                    className="mt-8 first:mt-0"
+                                                >
                                                     <div className="flex items-center justify-between mb-3">
                                                         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
                                                             {section.name}

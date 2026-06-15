@@ -56,7 +56,8 @@ export function ImageField({
     const handlePick = async () => {
         setPicking(true)
         try {
-            const file = await window.kf.client.openFilePicker(IMAGE_PICKER_OPTIONS)
+            const files = await window.kf.client.openFilePicker(IMAGE_PICKER_OPTIONS)
+            const file = files?.[0]
             if (file) {
                 onChange(file)
                 onBlur(file)

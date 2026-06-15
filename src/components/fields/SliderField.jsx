@@ -8,10 +8,10 @@ export function SliderField({
     error,
     disabled = false,
 }) {
-    const min = field.MinValue ?? 0
-    const max = field.MaxValue ?? 10
-    const step = field.IntervalSize ?? 1
-    const current = value ?? field.DefaultValue ?? min
+    const min = Number(field.MinValue) ?? 0
+    const max = Number(field.MaxValue) ?? 10
+    const step = Number(field.IntervalSize) ?? 1
+    const current = value ?? Number(field.DefaultValue) ?? min
 
     return (
         <div className="space-y-2">

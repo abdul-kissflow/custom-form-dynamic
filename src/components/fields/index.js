@@ -17,6 +17,9 @@ export { MultiUserSelectField } from './MultiUserSelectField'
 export { SequenceNumberField } from './SequenceNumberField'
 export { AggregationField } from './AggregationField'
 export { ImageField } from './ImageField'
+export { AttachmentField } from './AttachmentField'
+export { ChecklistField } from './ChecklistField'
+export { LookupField } from './LookupField'
 
 // Field type mapper
 export const fieldTypeMap = {
@@ -38,6 +41,10 @@ export const fieldTypeMap = {
     'Slider': 'SliderField',
     'SequenceNumber': 'SequenceNumberField',
     'Image': 'ImageField',
+    'Attachment': 'AttachmentField',
+    'Checklist': 'ChecklistField',
+    'Lookup': 'LookupField',
+    'RemoteLookup': 'LookupField',
 }
 
 /**
@@ -56,6 +63,10 @@ export function getFieldComponent(fieldType, widget) {
     // Text, Date, DateTime) and are identified by `Widget === 'Aggregation'`
     if (widget === 'Aggregation') {
         return 'AggregationField'
+    }
+
+    if(fieldType === 'Reference') {
+        return 'LookupField'
     }
 
     // console.log(fieldTypeMap[fieldType] || 'TextField')
