@@ -250,18 +250,18 @@ export function DynamicForm({
                                 <div className="space-y-10">
                                     {visibleSections.map((section) => {
                                         // ── Field section ──────────────────────────
-                                        if (section.type === 'Section') {
+                                        if (section.Type === 'Section') {
                                             return (
                                                 <div
-                                                    key={section.id}
+                                                    key={section.Id}
                                                     className="mt-8 first:mt-0"
                                                 >
                                                     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                                                        {section.name}
+                                                        {section.Name}
                                                     </h3>
                                                     <div className="grid gap-6 md:grid-cols-2">
                                                         {(
-                                                            section.fields || []
+                                                            section.Fields || []
                                                         ).map((field) => {
                                                             const FieldComponent =
                                                                 resolveFieldComponent(
@@ -318,21 +318,21 @@ export function DynamicForm({
                                         }
 
                                         // ── Child table section ────────────────────
-                                        if (section.type === 'Model') {
-                                            const table = getTable(section.id)
-                                            const columns = section.fields || []
+                                        if (section.Type === 'Model') {
+                                            const table = getTable(section.Id)
+                                            const columns = section.Fields || []
                                             const rows =
                                                 localState[
-                                                    `Table::${section.id}`
+                                                    `Table::${section.Id}`
                                                 ] || []
                                             return (
                                                 <div
-                                                    key={section.id}
+                                                    key={section.Id}
                                                     className="mt-8 first:mt-0"
                                                 >
                                                     <div className="flex items-center justify-between mb-3">
                                                         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                                                            {section.name}
+                                                            {section.Name}
                                                         </h3>
                                                         <button
                                                             type="button"
@@ -356,12 +356,12 @@ export function DynamicForm({
                                                                         ) => (
                                                                             <th
                                                                                 key={
-                                                                                    col.id
+                                                                                    col.Id
                                                                                 }
                                                                                 className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
                                                                             >
                                                                                 {
-                                                                                    col.name
+                                                                                    col.Name
                                                                                 }
                                                                             </th>
                                                                         )
@@ -408,7 +408,7 @@ export function DynamicForm({
                                                                                     ) => (
                                                                                         <td
                                                                                             key={
-                                                                                                col.id
+                                                                                                col.Id
                                                                                             }
                                                                                             className="px-4 py-2"
                                                                                         >
@@ -417,7 +417,7 @@ export function DynamicForm({
                                                                                                 defaultValue={
                                                                                                     row[
                                                                                                         col
-                                                                                                            .id
+                                                                                                            .Id
                                                                                                     ] ||
                                                                                                     ''
                                                                                                 }
