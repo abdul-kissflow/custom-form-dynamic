@@ -1,13 +1,38 @@
 import { Input } from '@/components/ui/input'
 
-export function DateTimeField({ field, value, onChange, onBlur, error, disabled = false }) {
-    // Convert ISO 8601 to datetime-local format (YYYY-MM-DDTHH:mm)
-    const formatValue = (val) => {
-        if (!val) return ''
-        // Handle both ISO and datetime-local formats
-        return val.slice(0, 16)
-    }
+const pad = (n) => String(n).padStart(2, '0')
 
+// Platform stores: "YYYY-MM-DDTHH:mm:00+05:30 Asia/Kolkata"
+// input[datetime-local] needs: "YYYY-MM-DDTHH:mm"
+function fromKFDateTime(val) {
+    if (!val) return ''
+    const isoStr = typeof val === 'string' ? val.split(' ')[0] : ''
+    if (!isoStr) return ''
+    const date = new Date(isoStr)
+    if (isNaN(date)) return val.slice(0, 16)
+    return (
+        `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+        `T${pad(date.getHours())}:${pad(date.getMinutes())}`
+    )
+}
+
+// input[datetime-local] gives local "YYYY-MM-DDTHH:mm" — convert to platform format
+function toKFDateTime(localValue) {
+    if (!localValue) return null
+    const date = new Date(localValue)
+    if (isNaN(date)) return null
+    const tzName = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const off = -date.getTimezoneOffset()
+    const sign = off >= 0 ? '+' : '-'
+    const absOff = Math.abs(off)
+    return (
+        `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+        `T${pad(date.getHours())}:${pad(date.getMinutes())}:00` +
+        `${sign}${pad(Math.floor(absOff / 60))}:${pad(absOff % 60)} ${tzName}`
+    )
+}
+
+export function DateTimeField({ field, value, onChange, onBlur, error, disabled = false }) {
     return (
         <div className="space-y-2">
             <label htmlFor={field.Id} className="block text-sm font-semibold text-gray-700">
@@ -18,9 +43,9 @@ export function DateTimeField({ field, value, onChange, onBlur, error, disabled 
                 id={field.Id}
                 type="datetime-local"
                 name={field.Id}
-                value={formatValue(value)}
-                onChange={(e) => onChange(e.target.value)}
-                onBlur={(e) => onBlur(e.target.value)}
+                value={fromKFDateTime(value)}
+                onChange={(e) => onChange(toKFDateTime(e.target.value))}
+                onBlur={(e) => onBlur(toKFDateTime(e.target.value))}
                 disabled={disabled || field.ReadOnly}
                 className={error ? 'border-red-300 bg-red-50' : ''}
             />

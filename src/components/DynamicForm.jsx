@@ -23,6 +23,7 @@ import {
     AttachmentField,
     ChecklistField,
     LookupField,
+    SignatureField,
     getFieldComponent,
 } from './fields'
 import { TableFieldCell } from './tablefields/index.js'
@@ -129,6 +130,7 @@ export function DynamicForm({
             AttachmentField,
             ChecklistField,
             LookupField,
+            SignatureField,
         }
         return componentMap[componentName] || TextField
     }
@@ -359,7 +361,7 @@ export function DynamicForm({
                                                                                 key={
                                                                                     col.Id
                                                                                 }
-                                                                                className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                                                                                className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[140px]"
                                                                             >
                                                                                 {
                                                                                     col.Name

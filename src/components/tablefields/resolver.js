@@ -17,6 +17,7 @@ import { TableImageField } from './TableImageField.jsx'
 import { TableLookupField } from './TableLookupField.jsx'
 import { TableSequenceNumberField } from './TableSequenceNumberField.jsx'
 import { TableAggregationField } from './TableAggregationField.jsx'
+import { TableSignatureField } from './TableSignatureField.jsx'
 
 const TABLE_FIELD_MAP = {
     Text: TableTextField,
@@ -32,9 +33,12 @@ const TABLE_FIELD_MAP = {
     Radio: TableSelectField,
     Currency: TableCurrencyField,
     User: TableUserSelectField,
+    UserAndGroup: TableUserSelectField,
     MultiUser: TableMultiUserSelectField,
+    UserGroupList: TableMultiUserSelectField,
     StarRating: TableRatingField,
     Slider: TableSliderField,
+    Signature: TableSignatureField,
     SequenceNumber: TableSequenceNumberField,
     Image: TableImageField,
     Attachment: TableAttachmentField,

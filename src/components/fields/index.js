@@ -20,6 +20,7 @@ export { ImageField } from './ImageField'
 export { AttachmentField } from './AttachmentField'
 export { ChecklistField } from './ChecklistField'
 export { LookupField } from './LookupField'
+export { SignatureField } from './SignatureField.jsx'
 
 // Field type mapper
 export const fieldTypeMap = {
@@ -35,8 +36,10 @@ export const fieldTypeMap = {
     'Boolean': 'BooleanField',
     'Radio': 'RadioField',
     'Currency': 'CurrencyField',
-    'User': 'UserSelectField', // Single user select
-    'MultiUser': 'MultiUserSelectField', // Multiple user select
+    'User': 'UserSelectField',
+    'UserAndGroup': 'UserSelectField',
+    'MultiUser': 'MultiUserSelectField',
+    'UserGroupList': 'MultiUserSelectField',
     'StarRating': 'RatingField',
     'Slider': 'SliderField',
     'SequenceNumber': 'SequenceNumberField',
@@ -45,6 +48,7 @@ export const fieldTypeMap = {
     'Checklist': 'ChecklistField',
     'Lookup': 'LookupField',
     'RemoteLookup': 'LookupField',
+    'Signature': 'SignatureField',
 }
 
 /**
