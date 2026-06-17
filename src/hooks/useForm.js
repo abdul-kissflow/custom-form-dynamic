@@ -209,11 +209,16 @@ export function useForm(flowType, flowId, instanceId) {
 
     // Get dropdown/select options for a field
     const getFieldOptions = useCallback(
-        async (fieldId) => {
+        async (fieldId, tableId, rowId) => {
             try {
                 const flowInstance = await getFlowInstance()
                 const formInstance = await getFormInstance()
-                return flowInstance.getFieldOptions({ fieldId, instanceId: formInstance.instanceId })
+                return flowInstance.getFieldOptions({
+                    fieldId,
+                    instanceId: formInstance.instanceId,
+                    tableId,
+                    tableRowId: rowId,
+                })
             } catch (err) {
                 setError(err.message || 'Failed to get field options')
                 console.error('Get field options error:', err)

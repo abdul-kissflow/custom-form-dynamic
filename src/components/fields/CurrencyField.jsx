@@ -10,7 +10,7 @@ import {
 
 // Payload format: "<amount> <currencyCode>" e.g. "100 USD", null when empty.
 
-const getCurrencySymbol = (code) => {
+export const getCurrencySymbol = (code) => {
     if (!code) return ''
     try {
         return (
@@ -27,7 +27,7 @@ const getCurrencySymbol = (code) => {
     }
 }
 
-const parsePayload = (value, defaultCurrency) => {
+export const parsePayload = (value, defaultCurrency) => {
     if (!value) return [null, defaultCurrency]
     const parts = String(value).split(' ')
     const amount = parseFloat(parts[0])
@@ -35,7 +35,7 @@ const parsePayload = (value, defaultCurrency) => {
     return [isNaN(amount) ? null : amount, currency]
 }
 
-const formatAmount = (num, decimalPoint) =>
+export const formatAmount = (num, decimalPoint) =>
     new Intl.NumberFormat('en', {
         minimumFractionDigits: decimalPoint,
         maximumFractionDigits: decimalPoint,

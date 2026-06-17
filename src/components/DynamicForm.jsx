@@ -25,6 +25,7 @@ import {
     LookupField,
     getFieldComponent,
 } from './fields'
+import { TableFieldCell } from './tablefields/index.js'
 
 /**
  * Dynamic Form Component
@@ -407,35 +408,17 @@ export function DynamicForm({
                                                                                         col
                                                                                     ) => (
                                                                                         <td
-                                                                                            key={
-                                                                                                col.Id
-                                                                                            }
-                                                                                            className="px-4 py-2"
+                                                                                            key={col.Id}
+                                                                                            className="px-2 py-1 border-b border-gray-100"
                                                                                         >
-                                                                                            <input
-                                                                                                type="text"
-                                                                                                defaultValue={
-                                                                                                    row[
-                                                                                                        col
-                                                                                                            .Id
-                                                                                                    ] ||
-                                                                                                    ''
-                                                                                                }
-                                                                                                onBlur={(
-                                                                                                    e
-                                                                                                ) =>
-                                                                                                    table.updateRow(
-                                                                                                        row._id,
-                                                                                                        col.id,
-                                                                                                        e
-                                                                                                            .target
-                                                                                                            .value
-                                                                                                    )
-                                                                                                }
-                                                                                                disabled={
-                                                                                                    loading
-                                                                                                }
-                                                                                                className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm disabled:bg-gray-50 disabled:text-gray-400"
+                                                                                            <TableFieldCell
+                                                                                                field={col}
+                                                                                                rowId={row._id}
+                                                                                                tableId={section.Id}
+                                                                                                value={row[col.Id]}
+                                                                                                table={table}
+                                                                                                loading={loading}
+                                                                                                getFieldOptions={getFieldOptions}
                                                                                             />
                                                                                         </td>
                                                                                     )

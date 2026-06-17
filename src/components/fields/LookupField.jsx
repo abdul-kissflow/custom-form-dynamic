@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 
 // Value: full record object { _id, Name, ...displayFields } or null.
 
-const formatFieldValue = (val) => {
+export const formatFieldValue = (val) => {
     if (val == null || val === '') return 'N/A'
     if (Array.isArray(val))
         return (
@@ -30,7 +30,7 @@ const formatFieldValue = (val) => {
 // columns: [{ Id, Name, Type }] from field.LookupColumns (query definition).
 // headerKey: field Id used as the card title, from LookupConfigurations.SelectedHeaderField.Id.
 // Falls back to "Name" when not configured — matches the platform default.
-function RecordCard({ record, columns, headerKey, isSelected, onClick, showCheck = false }) {
+export function RecordCard({ record, columns, headerKey, isSelected, onClick, showCheck = false }) {
     const titleKey = headerKey || 'Name'
     const title = record[titleKey] ?? record.Name ?? record._id
     const bodyColumns = columns.filter((col) => col.Id !== titleKey)
