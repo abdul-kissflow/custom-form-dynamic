@@ -28,19 +28,6 @@ import {
 } from './fields'
 import { TableFieldCell } from './tablefields/index.js'
 
-/**
- * Dynamic Form Component
- *
- * Renders a form dynamically from config (raw getFormConfiguration() array) returned by useForm.
- * - type:'Section' → renders grouped fields
- * - type:'Model'   → renders child table with inline row editing
- *
- * Props:
- * - flowType: string - "dataform" | "board" | "process"
- * - flowId: string - ID of the flow
- * - formInstanceId: string - Optional instance ID (creates new record if omitted)
- * - title: string - Optional form title
- */
 export function DynamicForm({
     flowType = 'dataform',
     flowId = 'Test_All_Fields_A00',
@@ -104,7 +91,6 @@ export function DynamicForm({
         setSubmitSuccess(false)
     }
 
-    // Resolve typed field component from field.type + field.widget
     const resolveFieldComponent = (field) => {
         const componentName = getFieldComponent(field.Type, field.Widget)
         const componentMap = {
@@ -139,488 +125,287 @@ export function DynamicForm({
         ? config.sections.filter((s) => !s.isHidden)
         : []
 
+    const hasErrors = Object.keys(errors).length > 0
+
     return (
-        <div className="min-h-screen bg-linear-to-br from-slate-50 via-slate-100 to-slate-200 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                        {title}
-                    </h1>
-                    <div className="h-1 w-24 bg-linear-to-r from-blue-500 to-blue-600 rounded-full"></div>
-                </div>
-
-                {/* General error */}
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                        <svg
-                            className="w-5 h-5 text-red-600 shrink-0 mt-0.5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                        <span className="text-red-800">{error}</span>
-                    </div>
-                )}
-
-                {/* Success */}
-                {submitSuccess && (
-                    <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-                        <svg
-                            className="w-5 h-5 text-green-600 shrink-0 mt-0.5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                        <span className="text-green-800 font-medium">
-                            Form saved successfully!
-                        </span>
-                    </div>
-                )}
-
-                {/* New record */}
-                {isNewRecord && (
-                    <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
-                        <svg
-                            className="w-5 h-5 text-blue-600 shrink-0 mt-0.5 animate-spin"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                        >
-                            <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                            ></circle>
-                            <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                        </svg>
-                        <span className="text-blue-800">
-                            Creating new record...
-                        </span>
-                    </div>
-                )}
-
-                {/* Form Card */}
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                    <form onSubmit={handleSubmit}>
-                        <div className="p-8">
-                            {loading ? (
-                                <div className="flex flex-col items-center gap-3 py-12">
-                                    <svg
-                                        className="w-8 h-8 text-blue-600 animate-spin"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <circle
-                                            className="opacity-25"
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        ></circle>
-                                        <path
-                                            className="opacity-75"
-                                            fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        ></path>
+        <div className="min-h-screen bg-[--color-background] font-sans">
+            <form onSubmit={handleSubmit} noValidate>
+                {/* ── Sticky top bar ───────────────────────────────────── */}
+                <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-sm border-b border-[--color-border]">
+                    <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <h1 className="text-base font-semibold text-[--color-foreground] truncate">
+                                {title}
+                            </h1>
+                            {isDirty && (
+                                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-xs font-medium border border-amber-200">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+                                    Unsaved
+                                </span>
+                            )}
+                            {submitSuccess && (
+                                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200">
+                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                     </svg>
-                                    <p className="text-gray-600">
-                                        Loading form...
-                                    </p>
-                                </div>
-                            ) : visibleSections.length === 0 ? (
-                                <p className="text-center text-gray-500 py-12">
-                                    No fields available
-                                </p>
-                            ) : (
-                                <div className="space-y-10">
-                                    {visibleSections.map((section) => {
-                                        // ── Field section ──────────────────────────
-                                        if (section.Type === 'Section') {
-                                            return (
-                                                <div
-                                                    key={section.Id}
-                                                    className="mt-8 first:mt-0"
-                                                >
-                                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                                                        {section.Name}
-                                                    </h3>
-                                                    <div className="grid gap-6 md:grid-cols-2">
-                                                        {(
-                                                            section.Fields || []
-                                                        ).map((field) => {
-                                                            const FieldComponent =
-                                                                resolveFieldComponent(
-                                                                    field
-                                                                )
-                                                            return (
-                                                                <FieldComponent
-                                                                    key={
-                                                                        field.Id
-                                                                    }
-                                                                    field={
-                                                                        field
-                                                                    }
-                                                                    value={
-                                                                        localState[
-                                                                            field
-                                                                                .Id
-                                                                        ]
-                                                                    }
-                                                                    onChange={(
-                                                                        value
-                                                                    ) =>
-                                                                        handleLocalChange(
-                                                                            field.Id,
-                                                                            value
-                                                                        )
-                                                                    }
-                                                                    onBlur={(
-                                                                        value
-                                                                    ) =>
-                                                                        handleFieldBlur(
-                                                                            field.Id,
-                                                                            value
-                                                                        )
-                                                                    }
-                                                                    error={
-                                                                        errors[
-                                                                            field
-                                                                                .Id
-                                                                        ]
-                                                                    }
-                                                                    disabled={
-                                                                        loading
-                                                                    }
-                                                                    getFieldOptions={
-                                                                        getFieldOptions
-                                                                    }
-                                                                />
-                                                            )
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            )
-                                        }
-
-                                        // ── Child table section ────────────────────
-                                        if (section.Type === 'Model') {
-                                            const table = getTable(section.Id)
-                                            const columns = section.Fields || []
-                                            const rows =
-                                                localState[
-                                                    `Table::${section.Id}`
-                                                ] || []
-                                            return (
-                                                <div
-                                                    key={section.Id}
-                                                    className="mt-8 first:mt-0"
-                                                >
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                                                            {section.Name}
-                                                        </h3>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                table.addRow({})
-                                                            }
-                                                            disabled={loading}
-                                                            className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        >
-                                                            + Add Row
-                                                        </button>
-                                                    </div>
-
-                                                    <div className="overflow-x-auto rounded-lg border border-gray-200">
-                                                        <table className="min-w-full divide-y divide-gray-200 text-sm">
-                                                            <thead className="bg-gray-50">
-                                                                <tr>
-                                                                    {columns.map(
-                                                                        (
-                                                                            col
-                                                                        ) => (
-                                                                            <th
-                                                                                key={
-                                                                                    col.Id
-                                                                                }
-                                                                                className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[140px]"
-                                                                            >
-                                                                                {
-                                                                                    col.Name
-                                                                                }
-                                                                            </th>
-                                                                        )
-                                                                    )}
-                                                                    <th className="px-4 py-2.5 w-12"></th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody className="bg-white divide-y divide-gray-100">
-                                                                {rows.length ===
-                                                                0 ? (
-                                                                    <tr>
-                                                                        <td
-                                                                            colSpan={
-                                                                                columns.length +
-                                                                                1
-                                                                            }
-                                                                            className="px-4 py-6 text-center text-gray-400 text-sm"
-                                                                        >
-                                                                            No
-                                                                            rows
-                                                                            yet.
-                                                                            Click
-                                                                            +
-                                                                            Add
-                                                                            Row
-                                                                            to
-                                                                            begin.
-                                                                        </td>
-                                                                    </tr>
-                                                                ) : (
-                                                                    rows.map(
-                                                                        (
-                                                                            row
-                                                                        ) => (
-                                                                            <tr
-                                                                                key={
-                                                                                    row._id
-                                                                                }
-                                                                                className="hover:bg-gray-50"
-                                                                            >
-                                                                                {columns.map(
-                                                                                    (
-                                                                                        col
-                                                                                    ) => (
-                                                                                        <td
-                                                                                            key={col.Id}
-                                                                                            className="px-2 py-1 border-b border-gray-100"
-                                                                                        >
-                                                                                            <TableFieldCell
-                                                                                                field={col}
-                                                                                                rowId={row._id}
-                                                                                                tableId={section.Id}
-                                                                                                value={row[col.Id]}
-                                                                                                table={table}
-                                                                                                loading={loading}
-                                                                                                getFieldOptions={getFieldOptions}
-                                                                                            />
-                                                                                        </td>
-                                                                                    )
-                                                                                )}
-                                                                                <td className="px-4 py-2 text-center">
-                                                                                    <button
-                                                                                        type="button"
-                                                                                        onClick={() =>
-                                                                                            table.deleteRow(
-                                                                                                row._id
-                                                                                            )
-                                                                                        }
-                                                                                        disabled={
-                                                                                            loading
-                                                                                        }
-                                                                                        className="text-red-500 hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed"
-                                                                                        title="Delete row"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="w-4 h-4"
-                                                                                            fill="currentColor"
-                                                                                            viewBox="0 0 20 20"
-                                                                                        >
-                                                                                            <path
-                                                                                                fillRule="evenodd"
-                                                                                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                                                                clipRule="evenodd"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
-                                                                                </td>
-                                                                            </tr>
-                                                                        )
-                                                                    )
-                                                                )}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-
-                                                    {rows.length > 0 && (
-                                                        <p className="mt-1.5 text-xs text-gray-400">
-                                                            {rows.length} row
-                                                            {rows.length !== 1
-                                                                ? 's'
-                                                                : ''}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )
-                                        }
-
-                                        return null
-                                    })}
-                                </div>
+                                    Saved
+                                </span>
                             )}
                         </div>
 
-                        {/* Divider + Actions */}
-                        {visibleSections.length > 0 && !loading && (
-                            <>
-                                <div className="border-t border-gray-200"></div>
-                                <div className="px-8 py-6 bg-gray-50 flex gap-3">
-                                    <button
-                                        type="submit"
-                                        disabled={loading || !isDirty}
-                                        className={`flex-1 px-6 py-2.5 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
-                                            loading || !isDirty
-                                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
-                                        }`}
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <svg
-                                                    className="w-4 h-4 animate-spin"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <circle
-                                                        className="opacity-25"
-                                                        cx="12"
-                                                        cy="12"
-                                                        r="10"
-                                                        stroke="currentColor"
-                                                        strokeWidth="4"
-                                                    ></circle>
-                                                    <path
-                                                        className="opacity-75"
-                                                        fill="currentColor"
-                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                    ></path>
-                                                </svg>
-                                                Saving...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg
-                                                    className="w-4 h-4"
-                                                    fill="currentColor"
-                                                    viewBox="0 0 20 20"
-                                                >
-                                                    <path d="M19.414 1.586a2 2 0 00-2.828 0L7 11.172V15h3.828l9.586-9.586a2 2 0 000-2.828z" />
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                                Save
-                                            </>
-                                        )}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleReset}
-                                        disabled={loading || !isDirty}
-                                        className={`flex-1 px-6 py-2.5 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
-                                            loading || !isDirty
-                                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                : 'bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800'
-                                        }`}
-                                    >
-                                        <svg
-                                            className="w-4 h-4"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                        >
-                                            <path
-                                                fillRule="evenodd"
-                                                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 1119.414 9.414 1 1 0 11-1.414-1.414A5 5 0 004.059 4.059V3a1 1 0 01-1-1z"
-                                                clipRule="evenodd"
-                                            />
+                        <div className="flex items-center gap-2 shrink-0">
+                            <button
+                                type="button"
+                                onClick={handleReset}
+                                disabled={loading || !isDirty}
+                                className="px-3 py-1.5 text-sm font-medium text-slate-600 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Reset
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading || !isDirty}
+                                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold rounded-lg bg-[--color-primary] text-white hover:opacity-90 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed transition-all shadow-sm"
+                            >
+                                {loading ? (
+                                    <>
+                                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                                         </svg>
-                                        Reset
-                                    </button>
-                                </div>
-
-                                <div className="px-8 py-4 bg-white border-t border-gray-200">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="text-center">
-                                            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-                                                Status
-                                            </p>
-                                            <p
-                                                className={`text-sm font-semibold mt-1 ${isDirty ? 'text-amber-600' : 'text-green-600'}`}
-                                            >
-                                                {isDirty ? 'Unsaved' : 'Saved'}
-                                            </p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-                                                Errors
-                                            </p>
-                                            <p
-                                                className={`text-sm font-semibold mt-1 ${Object.keys(errors).length > 0 ? 'text-red-600' : 'text-green-600'}`}
-                                            >
-                                                {
-                                                    Object.keys(
-                                                        errors['_root'] || {}
-                                                    ).length
-                                                }
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </form>
+                                        Saving…
+                                    </>
+                                ) : (
+                                    'Save'
+                                )}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Debug */}
-                {visibleSections.length > 0 && (
-                    <div className="mt-8 space-y-4">
-                        <details className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-700">
-                                Form Data (Debug)
-                            </summary>
-                            <pre className="px-6 py-4 bg-gray-50 border-t border-gray-200 text-xs overflow-x-auto text-gray-800">
-                                {JSON.stringify(formData, null, 2)}
-                            </pre>
-                        </details>
-                        <details className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-700">
-                                Validation Errors (Debug)
-                            </summary>
-                            <pre className="px-6 py-4 bg-gray-50 border-t border-gray-200 text-xs overflow-x-auto text-gray-800">
-                                {JSON.stringify(errors, null, 2)}
-                            </pre>
-                        </details>
-                        <details className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-700">
-                                Form Config (Debug)
-                            </summary>
-                            <pre className="px-6 py-4 bg-gray-50 border-t border-gray-200 text-xs overflow-x-auto text-gray-800">
-                                {JSON.stringify(config, null, 2)}
-                            </pre>
-                        </details>
+                {/* ── Page body ────────────────────────────────────────── */}
+                <div className="max-w-5xl mx-auto px-6 py-8 space-y-2">
+
+                    {/* Banner messages */}
+                    {error && (
+                        <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
+                            <svg className="w-4 h-4 mt-0.5 shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                            {error}
+                        </div>
+                    )}
+
+                    {isNewRecord && (
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-800 text-sm">
+                            <svg className="w-4 h-4 animate-spin shrink-0 text-indigo-500" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            Creating new record…
+                        </div>
+                    )}
+
+                    {/* ── Form card ──────────────────────────────────────── */}
+                    <div className="bg-white rounded-xl border border-[--color-border] shadow-sm overflow-hidden">
+                        {loading ? (
+                            <div className="flex flex-col items-center gap-3 py-20">
+                                <svg className="w-7 h-7 text-[--color-primary] animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                                <p className="text-sm text-slate-400">Loading form…</p>
+                            </div>
+                        ) : visibleSections.length === 0 ? (
+                            <div className="flex flex-col items-center gap-2 py-20 text-slate-400">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p className="text-sm">No fields available</p>
+                            </div>
+                        ) : (
+                            <div>
+                                {visibleSections.map((section, sectionIdx) => {
+                                    // ── Field section ───────────────────────
+                                    if (section.Type === 'Section') {
+                                        return (
+                                            <div
+                                                key={section.Id}
+                                                className={`px-8 py-6 ${sectionIdx > 0 ? 'border-t border-[--color-border]' : ''}`}
+                                            >
+                                                {section.Name && (
+                                                    <div className="flex items-center gap-3 mb-6">
+                                                        <span className="w-0.5 h-4 rounded-full bg-[--color-primary] shrink-0" />
+                                                        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                                                            {section.Name}
+                                                        </h2>
+                                                    </div>
+                                                )}
+                                                <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+                                                    {(section.Fields || []).map((field) => {
+                                                        const FieldComponent = resolveFieldComponent(field)
+                                                        return (
+                                                            <FieldComponent
+                                                                key={field.Id}
+                                                                field={field}
+                                                                value={localState[field.Id]}
+                                                                onChange={(value) => handleLocalChange(field.Id, value)}
+                                                                onBlur={(value) => handleFieldBlur(field.Id, value)}
+                                                                error={errors[field.Id]}
+                                                                disabled={loading}
+                                                                getFieldOptions={getFieldOptions}
+                                                            />
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+
+                                    // ── Child table section ─────────────────
+                                    if (section.Type === 'Model') {
+                                        const table = getTable(section.Id)
+                                        const columns = section.Fields || []
+                                        const rows = localState[`Table::${section.Id}`] || []
+
+                                        return (
+                                            <div
+                                                key={section.Id}
+                                                className={`${sectionIdx > 0 ? 'border-t border-[--color-border]' : ''}`}
+                                            >
+                                                {/* Table header */}
+                                                <div className="px-8 py-5 flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="w-0.5 h-4 rounded-full bg-[--color-primary] shrink-0" />
+                                                        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                                                            {section.Name}
+                                                        </h2>
+                                                        {rows.length > 0 && (
+                                                            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-xs font-medium">
+                                                                {rows.length}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => table.addRow({})}
+                                                        disabled={loading}
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[--color-primary] text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity shadow-sm"
+                                                    >
+                                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                                                        </svg>
+                                                        Add Row
+                                                    </button>
+                                                </div>
+
+                                                {/* Table */}
+                                                <div className="overflow-x-auto border-t border-[--color-border]">
+                                                    <table className="min-w-full text-sm">
+                                                        <thead>
+                                                            <tr className="bg-slate-50 border-b border-[--color-border]">
+                                                                {columns.map((col) => (
+                                                                    <th
+                                                                        key={col.Id}
+                                                                        className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap min-w-[140px]"
+                                                                    >
+                                                                        {col.Name}
+                                                                    </th>
+                                                                ))}
+                                                                <th className="px-4 py-3 w-12" />
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {rows.length === 0 ? (
+                                                                <tr>
+                                                                    <td
+                                                                        colSpan={columns.length + 1}
+                                                                        className="px-4 py-10 text-center text-slate-400 text-sm"
+                                                                    >
+                                                                        No rows yet — click <strong className="font-medium text-slate-500">Add Row</strong> to begin.
+                                                                    </td>
+                                                                </tr>
+                                                            ) : (
+                                                                rows.map((row, rowIdx) => (
+                                                                    <tr
+                                                                        key={row._id}
+                                                                        className={`border-b border-[--color-border] last:border-0 transition-colors hover:bg-slate-50/60 ${rowIdx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'}`}
+                                                                    >
+                                                                        {columns.map((col) => (
+                                                                            <td key={col.Id} className="px-2 py-1.5">
+                                                                                <TableFieldCell
+                                                                                    field={col}
+                                                                                    rowId={row._id}
+                                                                                    tableId={section.Id}
+                                                                                    value={row[col.Id]}
+                                                                                    table={table}
+                                                                                    loading={loading}
+                                                                                    getFieldOptions={getFieldOptions}
+                                                                                />
+                                                                            </td>
+                                                                        ))}
+                                                                        <td className="px-3 py-1.5 text-center">
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => table.deleteRow(row._id)}
+                                                                                disabled={loading}
+                                                                                className="p-1 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                                                                title="Delete row"
+                                                                            >
+                                                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                                                </svg>
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+
+                                    return null
+                                })}
+
+                                {/* Error summary */}
+                                {hasErrors && (
+                                    <div className="px-8 py-4 border-t border-red-100 bg-red-50/60">
+                                        <p className="text-xs text-red-600 font-medium">
+                                            {Object.keys(errors['_root'] || {}).length} validation error(s) — review fields above.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+
+                    {/* ── Debug panels ───────────────────────────────────── */}
+                    {visibleSections.length > 0 && (
+                        <div className="space-y-2 pt-4">
+                            {[
+                                { label: 'Form Data', data: formData },
+                                { label: 'Validation Errors', data: errors },
+                                { label: 'Form Config', data: config },
+                            ].map(({ label, data }) => (
+                                <details key={label} className="group bg-white rounded-lg border border-[--color-border] overflow-hidden text-xs">
+                                    <summary className="px-5 py-3 cursor-pointer select-none flex items-center justify-between font-medium text-slate-600 hover:bg-slate-50">
+                                        {label}
+                                        <svg className="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </summary>
+                                    <pre className="px-5 py-4 bg-slate-50 border-t border-[--color-border] overflow-x-auto text-slate-700 leading-relaxed">
+                                        {JSON.stringify(data, null, 2)}
+                                    </pre>
+                                </details>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </form>
         </div>
     )
 }
