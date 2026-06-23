@@ -22,6 +22,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
  *   - getField(fieldId): Promise<object>
  *   - getFieldOptions(fieldId): Promise<object[]>
  *   - getFormData(): Promise<object>
+ *   - parseAttachment(fieldId, file): Promise<{appliedFields, suggestedBy}> - process flows only
  *   - save(): Promise<boolean>
  *   - reset(): void
  *   - getTable(tableId): { rows, addRow, addRows, deleteRow, deleteRows, updateRow, getRowField, getSelectedRows }
@@ -41,7 +42,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
  *   }
  * });
  */
-export function useForm(flowType, flowId, instanceId) {
+export function useForm(flowType, flowId, instanceId, activityInstanceId) {
     const [formData, setFormData] = useState({})
     const [config, setConfig] = useState([])
     const [errors, setErrors] = useState({})
@@ -82,7 +83,7 @@ export function useForm(flowType, flowId, instanceId) {
 
         if (flowType && flowId) {
             const flowInstance = await getFlowInstance()
-            formInstanceRef.current = await flowInstance.initForm(instanceId)
+            formInstanceRef.current = await flowInstance.initForm(instanceId, activityInstanceId)
             setIsNewRecord(!instanceId)
             return formInstanceRef.current
         }
@@ -212,10 +213,10 @@ export function useForm(flowType, flowId, instanceId) {
         async (fieldId, tableId, rowId) => {
             try {
                 const flowInstance = await getFlowInstance()
-                const formInstance = await getFormInstance()
                 return flowInstance.getFieldOptions({
                     fieldId,
-                    instanceId: formInstance.instanceId,
+                    instanceId: instanceId,
+                    activityInstanceId: activityInstanceId,
                     tableId,
                     tableRowId: rowId,
                 })
@@ -225,7 +226,39 @@ export function useForm(flowType, flowId, instanceId) {
                 throw err
             }
         },
-        [getFlowInstance, getFormInstance]
+        [getFlowInstance, instanceId, activityInstanceId]
+    )
+
+    // Trigger AI document parsing on a Smart Attachment field. Matching empty
+    // fields are auto-filled by the platform directly into the form store —
+    // refresh formData afterward so the UI reflects the autofill immediately.
+    const parseAttachment = useCallback(
+        async (fieldId, file) => {
+            if (flowType !== 'process') {
+                throw new Error(
+                    'Smart Attachment parsing is only available for process flows today'
+                )
+            }
+            try {
+                setError(null)
+                const flowInstance = await getFlowInstance()
+                const formInstance = await getFormInstance()
+                const result = await flowInstance.parseAttachment({
+                    instanceId,
+                    activityInstanceId,
+                    fieldId,
+                    file,
+                })
+                const updatedData = await formInstance.toJSON()
+                setFormData(updatedData || {})
+                return result // { appliedFields, suggestedBy }
+            } catch (err) {
+                setError(err.message || 'Failed to parse attachment')
+                console.error('Parse attachment error:', err)
+                throw err
+            }
+        },
+        [flowType, getFlowInstance, getFormInstance, instanceId, activityInstanceId]
     )
 
     // Get latest form data
@@ -333,6 +366,7 @@ export function useForm(flowType, flowId, instanceId) {
         getField,
         getFieldOptions,
         getFormData,
+        parseAttachment,
         save,
         reset,
 

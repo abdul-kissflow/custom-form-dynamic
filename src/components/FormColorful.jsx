@@ -71,7 +71,7 @@ function palette(idx) {
     return SECTION_PALETTES[idx % SECTION_PALETTES.length]
 }
 
-function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFieldOptions }) {
+function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFieldOptions, parseAttachment }) {
     const componentName = getFieldComponent(field.Type, field.Widget)
     const Component = Fields[componentName] || Fields.TextField
     return (
@@ -83,11 +83,12 @@ function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFie
             error={error}
             disabled={disabled}
             getFieldOptions={getFieldOptions}
+            parseAttachment={parseAttachment}
         />
     )
 }
 
-function SectionCard({ section, index, localState, errors, loading, getFieldOptions, handleChange, handleBlur, getTable }) {
+function SectionCard({ section, index, localState, errors, loading, getFieldOptions, parseAttachment, handleChange, handleBlur, getTable }) {
     const p = palette(index)
     const isTable = section.Type === 'Model'
     const table = isTable ? getTable(section.Id) : null
@@ -127,6 +128,7 @@ function SectionCard({ section, index, localState, errors, loading, getFieldOpti
                                 error={errors[field.Id]}
                                 disabled={loading}
                                 getFieldOptions={getFieldOptions}
+                                parseAttachment={parseAttachment}
                             />
                         ))}
                     </div>
@@ -208,7 +210,7 @@ export function FormColorful({
     formInstanceId,
     title = 'Form',
 }) {
-    const { formData, config, errors, updateField, save, reset, loading, error, isDirty, getFieldOptions, getTable } =
+    const { formData, config, errors, updateField, save, reset, loading, error, isDirty, getFieldOptions, parseAttachment, getTable } =
         useForm(flowType, flowId, formInstanceId)
     const [localState, setLocalState] = useState(formData)
     const [saving, setSaving] = useState(false)
@@ -323,6 +325,7 @@ export function FormColorful({
                             errors={errors}
                             loading={loading}
                             getFieldOptions={getFieldOptions}
+                            parseAttachment={parseAttachment}
                             handleChange={handleChange}
                             handleBlur={handleBlur}
                             getTable={getTable}

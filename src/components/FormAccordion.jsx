@@ -9,7 +9,7 @@ import { TableFieldCell } from './tablefields/index.js'
    Palette: warm off-white bg  ·  slate-900 headers  ·  amber accent
 ───────────────────────────────────────────────────────────────────────────── */
 
-function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFieldOptions }) {
+function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFieldOptions, parseAttachment }) {
     const componentName = getFieldComponent(field.Type, field.Widget)
     const Component = Fields[componentName] || Fields.TextField
     return (
@@ -21,6 +21,7 @@ function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFie
             error={error}
             disabled={disabled}
             getFieldOptions={getFieldOptions}
+            parseAttachment={parseAttachment}
         />
     )
 }
@@ -83,7 +84,7 @@ export function FormAccordion({
     formInstanceId,
     title = 'Form',
 }) {
-    const { formData, config, errors, updateField, save, reset, loading, error, isDirty, getTable, getFieldOptions } =
+    const { formData, config, errors, updateField, save, reset, loading, error, isDirty, getTable, getFieldOptions, parseAttachment } =
         useForm(flowType, flowId, formInstanceId)
     const [localState, setLocalState] = useState(formData)
     const [openSections, setOpenSections] = useState(new Set([0]))
@@ -231,6 +232,7 @@ export function FormAccordion({
                                                 error={errors[field.Id]}
                                                 disabled={loading}
                                                 getFieldOptions={getFieldOptions}
+                                                parseAttachment={parseAttachment}
                                             />
                                         ))}
                                     </div>

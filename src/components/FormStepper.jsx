@@ -9,7 +9,7 @@ import { TableFieldCell } from './tablefields/index.js'
    Palette: deep violet-purple gradient bg  ·  white card  ·  rose finish step
 ───────────────────────────────────────────────────────────────────────────── */
 
-function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFieldOptions }) {
+function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFieldOptions, parseAttachment }) {
     const componentName = getFieldComponent(field.Type, field.Widget)
     const Component = Fields[componentName] || Fields.TextField
     return (
@@ -21,6 +21,7 @@ function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFie
             error={error}
             disabled={disabled}
             getFieldOptions={getFieldOptions}
+            parseAttachment={parseAttachment}
         />
     )
 }
@@ -31,7 +32,7 @@ export function FormStepper({
     formInstanceId,
     title = 'Form',
 }) {
-    const { formData, config, errors, updateField, save, reset, loading, error, isDirty, getTable, getFieldOptions } =
+    const { formData, config, errors, updateField, save, reset, loading, error, isDirty, getTable, getFieldOptions, parseAttachment } =
         useForm(flowType, flowId, formInstanceId)
     const [localState, setLocalState] = useState(formData)
     const [step, setStep] = useState(0)
@@ -186,6 +187,7 @@ export function FormStepper({
                                         error={errors[field.Id]}
                                         disabled={loading}
                                         getFieldOptions={getFieldOptions}
+                                        parseAttachment={parseAttachment}
                                     />
                                 ))}
                             </div>

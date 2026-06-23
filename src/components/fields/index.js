@@ -18,6 +18,7 @@ export { SequenceNumberField } from './SequenceNumberField'
 export { AggregationField } from './AggregationField'
 export { ImageField } from './ImageField'
 export { AttachmentField } from './AttachmentField'
+export { SmartAttachmentField } from './SmartAttachmentField'
 export { ChecklistField } from './ChecklistField'
 export { LookupField } from './LookupField'
 export { SignatureField } from './SignatureField.jsx'
@@ -45,6 +46,7 @@ export const fieldTypeMap = {
     'SequenceNumber': 'SequenceNumberField',
     'Image': 'ImageField',
     'Attachment': 'AttachmentField',
+    'SmartAttachment': 'SmartAttachmentField',
     'Checklist': 'ChecklistField',
     'Lookup': 'LookupField',
     'RemoteLookup': 'LookupField',

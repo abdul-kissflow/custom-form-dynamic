@@ -17,7 +17,7 @@ function SectionIcon({ index }) {
     )
 }
 
-function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFieldOptions }) {
+function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFieldOptions, parseAttachment }) {
     const componentName = getFieldComponent(field.Type, field.Widget)
     const Component = Fields[componentName] || Fields.TextField
     return (
@@ -29,6 +29,7 @@ function FieldRenderer({ field, value, onChange, onBlur, error, disabled, getFie
             error={error}
             disabled={disabled}
             getFieldOptions={getFieldOptions}
+            parseAttachment={parseAttachment}
         />
     )
 }
@@ -39,7 +40,7 @@ export function FormTabbed({
     formInstanceId,
     title = 'Form',
 }) {
-    const { formData, config, errors, updateField, save, reset, loading, error, isDirty, getFieldOptions } =
+    const { formData, config, errors, updateField, save, reset, loading, error, isDirty, getFieldOptions, parseAttachment } =
         useForm(flowType, flowId, formInstanceId)
     const [localState, setLocalState] = useState(formData)
     const [activeIdx, setActiveIdx] = useState(0)
@@ -161,6 +162,7 @@ export function FormTabbed({
                                     error={errors[field.Id]}
                                     disabled={loading}
                                     getFieldOptions={getFieldOptions}
+                                    parseAttachment={parseAttachment}
                                 />
                             ))}
                         </div>
