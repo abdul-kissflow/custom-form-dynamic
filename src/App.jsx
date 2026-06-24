@@ -1,18 +1,19 @@
-import { useEffect } from 'react'
-import { kf } from './sdk/wrapper.jsx'
 import { DynamicForm } from './components/DynamicForm.jsx'
 
 function App() {
     return (
         <div className="rootDiv">
-            {/* This is a default placeholder component, 
-					remove this and add your own component */}
             {/* <CustomForm /> */}
             <DynamicForm
                 flowType="dataform"
                 flowId="Test_All_Fields_A00"
-                formInstanceId="PkD_YlNlwWEB"
+                // viewId="DT_view_A02"
+                instanceId="PkD_YlNlwWEB"
                 title="Dynamic Form"
+                // flowType="process"
+                // flowId="360_Degree_Feedback_new_A00"
+                // instanceId="PkDhEXpBupLm"
+                // activityInstanceId="PkDhzZnREAzL"
             />
             {/* <DefaultLandingComponent /> */}
         </div>

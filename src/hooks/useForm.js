@@ -9,9 +9,12 @@ import { useEffect, useState, useCallback, useRef } from 'react'
  *
  * @returns {object}
  *   - formData: object - Current field values
- *   - config: Array - Raw getFormConfiguration() response. Each entry is either:
- *       { type:'Section', id, name, fields:[{id, name, type, widget, required}], isHidden } or
- *       { type:'Model',   id, name, fields:[{id, name, type, widget}],           isHidden }
+ *   - config: object - Raw getFormConfiguration() response:
+ *       { formPermission: 'Edit'|'ReadOnly', sections: [...] }
+ *     formPermission is the outer VBAC gate (whole flow/view access) and overrides
+ *     every field's own Permission when 'ReadOnly'. Each section is either:
+ *       { Type:'Section', Id, Name, IsHidden, Permission, Fields:[{Id, Name, Type, Widget, Required, Permission, IsHidden, IsReadOnly, Validations}] } or
+ *       { Type:'Model',   Id, Name, IsHidden, Permission, Fields:[...] } (child table columns)
  *   - errors: object - Validation errors { fieldId: [...] }
  *   - loading: boolean
  *   - error: string|null
@@ -42,7 +45,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
  *   }
  * });
  */
-export function useForm(flowType, flowId, instanceId, activityInstanceId) {
+export function useForm({flowType, flowId, viewId, instanceId, activityInstanceId}) {
     const [formData, setFormData] = useState({})
     const [config, setConfig] = useState([])
     const [errors, setErrors] = useState({})
@@ -83,23 +86,18 @@ export function useForm(flowType, flowId, instanceId, activityInstanceId) {
 
         if (flowType && flowId) {
             const flowInstance = await getFlowInstance()
-            formInstanceRef.current = await flowInstance.initForm(instanceId, activityInstanceId)
+            // process.initForm(instanceId, activityInstanceId); dataform/board.initForm(instanceId, viewId) —
+            // the second positional arg means something different per flow type.
+            formInstanceRef.current =
+                flowType === 'process'
+                    ? await flowInstance.initForm(instanceId, activityInstanceId)
+                    : await flowInstance.initForm(instanceId, viewId)
             setIsNewRecord(!instanceId)
             return formInstanceRef.current
         }
 
-        // Legacy: page form context
-        if (flowType && !flowId) {
-            if (window.kf.context && window.kf.context.toJSON) {
-                formInstanceRef.current = window.kf.context
-                setIsNewRecord(false)
-                return formInstanceRef.current
-            }
-            throw new Error('Form context not available. Ensure component is placed on a form page.')
-        }
-
         throw new Error('useForm requires (flowType, flowId) or a page form context')
-    }, [flowType, flowId, instanceId, getFlowInstance])
+    }, [flowType, flowId, instanceId, viewId, activityInstanceId, getFlowInstance])
 
     // Initialize form: load data + config in parallel
     useEffect(() => {
@@ -212,11 +210,12 @@ export function useForm(flowType, flowId, instanceId, activityInstanceId) {
     const getFieldOptions = useCallback(
         async (fieldId, tableId, rowId) => {
             try {
+                const formInstance = await getFormInstance()
                 const flowInstance = await getFlowInstance()
                 return flowInstance.getFieldOptions({
                     fieldId,
-                    instanceId: instanceId,
-                    activityInstanceId: activityInstanceId,
+                    instanceId: formInstance.instanceId,
+                    activityInstanceId: formInstance.activityInstanceId,
                     tableId,
                     tableRowId: rowId,
                 })
@@ -226,7 +225,7 @@ export function useForm(flowType, flowId, instanceId, activityInstanceId) {
                 throw err
             }
         },
-        [getFlowInstance, instanceId, activityInstanceId]
+        [getFlowInstance, getFormInstance]
     )
 
     // Trigger AI document parsing on a Smart Attachment field. Matching empty
@@ -244,8 +243,8 @@ export function useForm(flowType, flowId, instanceId, activityInstanceId) {
                 const flowInstance = await getFlowInstance()
                 const formInstance = await getFormInstance()
                 const result = await flowInstance.parseAttachment({
-                    instanceId,
-                    activityInstanceId,
+                    instanceId: formInstance.instanceId,
+                    activityInstanceId: formInstance.activityInstanceId,
                     fieldId,
                     file,
                 })
@@ -258,7 +257,7 @@ export function useForm(flowType, flowId, instanceId, activityInstanceId) {
                 throw err
             }
         },
-        [flowType, getFlowInstance, getFormInstance, instanceId, activityInstanceId]
+        [flowType, getFlowInstance, getFormInstance]
     )
 
     // Get latest form data
