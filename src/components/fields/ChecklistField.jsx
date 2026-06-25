@@ -125,10 +125,10 @@ export function ChecklistField({
                                         !readOnly && handleToggle(item.value)
                                     }
                                     disabled={readOnly}
-                                    className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                                    className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors disabled:opacity-50 ${
                                         item.selected
                                             ? 'bg-blue-500 border-blue-500 text-white'
-                                            : 'border-gray-300 bg-white hover:border-blue-400'
+                                            : `border-gray-300 bg-white ${readOnly ? '' : 'hover:border-blue-400'}`
                                     } ${readOnly ? 'cursor-default' : 'cursor-pointer'}`}
                                     aria-label={
                                         item.selected

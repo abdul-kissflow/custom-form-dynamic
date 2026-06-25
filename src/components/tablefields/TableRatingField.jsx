@@ -15,7 +15,7 @@ export function TableRatingField({ field, value, onChange, onBlur, disabled }) {
 
     return (
         <div
-            className="flex items-center gap-0.5 h-8 px-1"
+            className={`flex items-center gap-0.5 h-8 px-1 ${readOnly ? 'opacity-50' : ''}`}
             onMouseLeave={() => setHovered(null)}
         >
             {Array.from({ length: maxRating }, (_, i) => {

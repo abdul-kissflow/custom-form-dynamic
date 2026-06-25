@@ -46,7 +46,7 @@ export function RecordCard({ record, columns, headerKey, isSelected, onClick, sh
             }`}
         >
             <div className="flex items-start justify-between gap-2">
-                <p className="font-semibold text-gray-900 text-sm leading-snug">
+                <p className="min-w-0 flex-1 truncate font-semibold text-gray-900 text-sm leading-snug">
                     {formatFieldValue(title)}
                 </p>
                 {showCheck && isSelected && (
@@ -147,7 +147,7 @@ export function LookupField({
     const selectedId = value?._id
 
     return (
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
             <label className="block text-sm font-semibold text-gray-700">
                 {field.Name}
                 {field.Required && <span className="text-red-500 ml-1">*</span>}
@@ -189,8 +189,10 @@ export function LookupField({
                         )}
                     </div>
                 ) : (
-                    <div className="flex items-center justify-between px-3 py-2.5 text-sm text-gray-400">
-                        <span>Select {field.Name.toLowerCase()}…</span>
+                    <div className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm text-gray-400">
+                        <span className="min-w-0 flex-1 truncate">
+                            Select {field.Name.toLowerCase()}…
+                        </span>
                         <ChevronDown className="w-4 h-4 shrink-0" />
                     </div>
                 )}

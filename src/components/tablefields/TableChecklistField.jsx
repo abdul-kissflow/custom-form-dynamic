@@ -15,7 +15,7 @@ export function TableChecklistField({ field, value, onChange, onBlur, disabled }
             <PopoverTrigger asChild>
                 <button
                     type="button"
-                    disabled={disabled && field.ReadOnly}
+                    disabled={disabled || field.ReadOnly}
                     className="flex items-center gap-1.5 h-8 px-2 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed w-full"
                 >
                     <ListChecks className="w-3.5 h-3.5 text-gray-400 shrink-0" />

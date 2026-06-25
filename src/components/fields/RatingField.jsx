@@ -4,6 +4,7 @@ import { Star } from 'lucide-react'
 export function RatingField({ field, value, onChange, onBlur, error, disabled = false }) {
     const [hovered, setHovered] = useState(null)
     const maxRating = field.MaxRating || 5
+    const readOnly = disabled || field.ReadOnly
     const display = hovered ?? value ?? 0
 
     const handleSelect = (rating) => {
@@ -20,7 +21,7 @@ export function RatingField({ field, value, onChange, onBlur, error, disabled = 
             </label>
             <div
                 id={field.Id}
-                className="flex items-center gap-1"
+                className={`flex items-center gap-1 ${readOnly ? 'opacity-50' : ''}`}
                 onMouseLeave={() => setHovered(null)}
             >
                 {Array.from({ length: maxRating }, (_, i) => {
@@ -30,8 +31,8 @@ export function RatingField({ field, value, onChange, onBlur, error, disabled = 
                         <button
                             key={star}
                             type="button"
-                            disabled={disabled || field.ReadOnly}
-                            onMouseEnter={() => setHovered(star)}
+                            disabled={readOnly}
+                            onMouseEnter={() => !readOnly && setHovered(star)}
                             onClick={() => handleSelect(star)}
                             className="cursor-pointer disabled:cursor-not-allowed"
                         >

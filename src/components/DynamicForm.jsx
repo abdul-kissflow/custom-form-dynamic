@@ -32,7 +32,8 @@ import { TableFieldCell } from './tablefields/index.js'
 export function DynamicForm({
     flowType,
     flowId,
-    formInstanceId,
+    viewId,
+    instanceId,
     activityInstanceId,
     title,
 }) {
@@ -52,7 +53,13 @@ export function DynamicForm({
         getFieldOptions,
         parseAttachment,
         getTable,
-    } = useForm(flowType, flowId, formInstanceId, activityInstanceId)
+    } = useForm({
+        flowType,
+        flowId,
+        viewId,
+        instanceId,
+        activityInstanceId,
+    })
 
     const [localState, setLocalState] = useState(formData)
 
@@ -125,9 +132,25 @@ export function DynamicForm({
         return componentMap[componentName] || TextField
     }
 
+    // formPermission is the outer VBAC gate (whole flow/view access) — it
+    // overrides every field's own Permission when ReadOnly.
+    const isFormReadOnly = config.formPermission === 'View'
+
     const visibleSections = Array.isArray(config.sections)
-        ? config.sections.filter((s) => !s.isHidden)
+        ? config.sections.filter((s) => !s.IsHidden)
         : []
+
+    // Merge a `ReadOnly` flag onto a field so the existing field components
+    // (which already check `field.ReadOnly`) respect both layers without
+    // per-component changes: the field's own Permission/IsReadOnly, and the
+    // form-wide VBAC gate.
+    const withReadOnly = (field) => ({
+        ...field,
+        ReadOnly:
+            isFormReadOnly ||
+            field.IsReadOnly ||
+            field.Permission === 'ReadOnly',
+    })
 
     const hasErrors = Object.keys(errors).length > 0
 
@@ -169,15 +192,19 @@ export function DynamicForm({
                             <button
                                 type="button"
                                 onClick={handleReset}
-                                disabled={loading || !isDirty}
+                                disabled={loading || !isDirty || isFormReadOnly}
                                 className="px-3 py-1.5 text-sm font-medium text-slate-600 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                             >
                                 Reset
                             </button>
                             <button
                                 type="submit"
-                                disabled={loading || !isDirty}
-                                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold rounded-lg bg-[--color-primary] text-white hover:opacity-90 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed transition-all shadow-sm"
+                                disabled={loading || !isDirty || isFormReadOnly}
+                                className={`inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold rounded-lg transition-all ${
+                                    loading || !isDirty || isFormReadOnly
+                                        ? 'bg-slate-100 text-slate-400 shadow-none cursor-not-allowed'
+                                        : 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 cursor-pointer'
+                                }`}
                             >
                                 {loading ? (
                                     <>
@@ -227,6 +254,24 @@ export function DynamicForm({
                                 />
                             </svg>
                             {error}
+                        </div>
+                    )}
+
+                    {isFormReadOnly && !loading && (
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 text-sm">
+                            <svg
+                                className="w-4 h-4 shrink-0 text-slate-400"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
+                            This form is read-only — you don&apos;t have edit
+                            access.
                         </div>
                     )}
 
@@ -325,8 +370,12 @@ export function DynamicForm({
                                                     </div>
                                                 )}
                                                 <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-                                                    {(section.Fields || []).map(
-                                                        (field) => {
+                                                    {(section.Fields || [])
+                                                        .filter(
+                                                            (field) =>
+                                                                !field.IsHidden
+                                                        )
+                                                        .map((field) => {
                                                             const FieldComponent =
                                                                 resolveFieldComponent(
                                                                     field
@@ -336,9 +385,9 @@ export function DynamicForm({
                                                                     key={
                                                                         field.Id
                                                                     }
-                                                                    field={
+                                                                    field={withReadOnly(
                                                                         field
-                                                                    }
+                                                                    )}
                                                                     value={
                                                                         localState[
                                                                             field
@@ -378,8 +427,7 @@ export function DynamicForm({
                                                                     }
                                                                 />
                                                             )
-                                                        }
-                                                    )}
+                                                        })}
                                                 </div>
                                             </div>
                                         )
@@ -388,7 +436,12 @@ export function DynamicForm({
                                     // ── Child table section ─────────────────
                                     if (section.Type === 'Model') {
                                         const table = getTable(section.Id)
-                                        const columns = section.Fields || []
+                                        const columns = (
+                                            section.Fields || []
+                                        ).filter((col) => !col.IsHidden)
+                                        const isTableReadOnly =
+                                            isFormReadOnly ||
+                                            section.Permission === 'ReadOnly'
                                         const rows =
                                             localState[
                                                 `Table::${section.Id}`
@@ -417,8 +470,11 @@ export function DynamicForm({
                                                         onClick={() =>
                                                             table.addRow({})
                                                         }
-                                                        disabled={loading}
-                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[--color-primary] text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity shadow-sm"
+                                                        disabled={
+                                                            loading ||
+                                                            isTableReadOnly
+                                                        }
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
                                                     >
                                                         <svg
                                                             className="w-3.5 h-3.5"
@@ -506,9 +562,9 @@ export function DynamicForm({
                                                                                         className="px-2 py-1.5"
                                                                                     >
                                                                                         <TableFieldCell
-                                                                                            field={
+                                                                                            field={withReadOnly(
                                                                                                 col
-                                                                                            }
+                                                                                            )}
                                                                                             rowId={
                                                                                                 row._id
                                                                                             }
@@ -543,7 +599,8 @@ export function DynamicForm({
                                                                                         )
                                                                                     }
                                                                                     disabled={
-                                                                                        loading
+                                                                                        loading ||
+                                                                                        isTableReadOnly
                                                                                     }
                                                                                     className="p-1 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                                                                     title="Delete row"
