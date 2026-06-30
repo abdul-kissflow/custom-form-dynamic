@@ -152,7 +152,22 @@ export function DynamicForm({
             field.Permission === 'ReadOnly',
     })
 
-    const hasErrors = Object.keys(errors).length > 0
+    // Count root + table errors. Root errors live in errors._root.fieldId;
+    // table errors in errors[tableId][rowId][fieldId].
+    const rootErrors = Object.keys(errors?.['_root'] || {})
+    const tableErrorCount = Object.entries(errors || {})
+        .filter(([k]) => k !== '_root')
+        .reduce(
+            (n, [, rows]) =>
+                n +
+                Object.values(rows).reduce(
+                    (m, fields) => m + Object.keys(fields || {}).length,
+                    0,
+                ),
+            0,
+        )
+    const totalErrorCount = rootErrors.length + tableErrorCount
+    const hasErrors = totalErrorCount > 0
 
     return (
         <div className="min-h-screen bg-[--color-background] font-sans">
@@ -411,7 +426,10 @@ export function DynamicForm({
                                                                         )
                                                                     }
                                                                     error={
-                                                                        errors[
+                                                                        (errors[
+                                                                            '_root'
+                                                                        ] ||
+                                                                            {})[
                                                                             field
                                                                                 .Id
                                                                         ]
@@ -511,6 +529,11 @@ export function DynamicForm({
                                                                             {
                                                                                 col.Name
                                                                             }
+                                                                            {col.Required && (
+                                                                                <span className="text-red-500 ml-0.5">
+                                                                                    *
+                                                                                </span>
+                                                                            )}
                                                                         </th>
                                                                     )
                                                                 )}
@@ -586,6 +609,17 @@ export function DynamicForm({
                                                                                             getFieldOptions={
                                                                                                 getFieldOptions
                                                                                             }
+                                                                                            error={
+                                                                                                errors?.[
+                                                                                                    section
+                                                                                                        .Id
+                                                                                                ]?.[
+                                                                                                    row._id
+                                                                                                ]?.[
+                                                                                                    col
+                                                                                                        .Id
+                                                                                                ]
+                                                                                            }
                                                                                         />
                                                                                     </td>
                                                                                 )
@@ -636,13 +670,8 @@ export function DynamicForm({
                                 {hasErrors && (
                                     <div className="px-8 py-4 border-t border-red-100 bg-red-50/60">
                                         <p className="text-xs text-red-600 font-medium">
-                                            {
-                                                Object.keys(
-                                                    errors['_root'] || {}
-                                                ).length
-                                            }{' '}
-                                            validation error(s) — review fields
-                                            above.
+                                            {totalErrorCount} validation
+                                            error(s) — review fields above.
                                         </p>
                                     </div>
                                 )}

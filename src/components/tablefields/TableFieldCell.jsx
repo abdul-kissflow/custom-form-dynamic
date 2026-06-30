@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getTableFieldComponent } from './resolver.js'
 
-export function TableFieldCell({ field, rowId, tableId, value, table, loading, getFieldOptions }) {
+export function TableFieldCell({ field, rowId, tableId, value, table, loading, getFieldOptions, error }) {
     const [localValue, setLocalValue] = useState(value ?? null)
 
     useEffect(
@@ -20,15 +20,23 @@ export function TableFieldCell({ field, rowId, tableId, value, table, loading, g
     )
 
     const TableComponent = getTableFieldComponent(field.Type, field.Widget)
+    const hasError = Array.isArray(error) ? error.length > 0 : Boolean(error)
 
     return (
-        <TableComponent
-            field={field}
-            value={localValue}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            disabled={loading}
-            getFieldOptions={boundGetFieldOptions}
-        />
+        <div>
+            <TableComponent
+                field={field}
+                value={localValue}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                disabled={loading}
+                getFieldOptions={boundGetFieldOptions}
+            />
+            {hasError && (
+                <p className="mt-0.5 text-[10px] text-red-500 leading-tight">
+                    {Array.isArray(error) ? error[0] : error}
+                </p>
+            )}
+        </div>
     )
 }
