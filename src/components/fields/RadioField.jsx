@@ -11,7 +11,6 @@ export function RadioField({ field, value, onChange, onBlur, error, disabled = f
             setLoading(true)
             try {
                 const fetchedOptions = await getFieldOptions(field.Id)
-                console.log(`Fetched options for ${field.Name}:`, fetchedOptions)
                 setFieldOptions(fetchedOptions)
             } catch (err) {
                 console.error(`Failed to fetch options for ${field.Name}:`, err)
@@ -34,27 +33,31 @@ export function RadioField({ field, value, onChange, onBlur, error, disabled = f
                 {field.Name}
                 {field.Required && <span className="text-red-500 ml-1">*</span>}
             </label>
-            {loading ? (
-                <p className="text-sm text-gray-500">Loading options...</p>
-            ) : (
-                <RadioGroup value={value || ''} onValueChange={handleChange} disabled={disabled || field.ReadOnly}>
-                    {fieldOptions.map((option) => {
-                        const optionId = option._id || option.name || option
-                        const optionLabel = option.Name || option.name || option
-                        return (
-                            <div key={optionId} className="flex items-center gap-2">
-                                <RadioGroupItem value={optionId} id={`${field.Id}-${optionId}`} disabled={disabled || field.ReadOnly} />
-                                <label
-                                    htmlFor={`${field.Id}-${optionId}`}
-                                    className="text-sm cursor-pointer"
-                                >
-                                    {optionLabel}
-                                </label>
-                            </div>
-                        )
-                    })}
-                </RadioGroup>
-            )}
+            <div className="space-y-2 border border-gray-300 rounded-lg p-3">
+                {loading ? (
+                    <p className="text-sm text-gray-500">Loading options...</p>
+                ) : fieldOptions.length > 0 ? (
+                    <RadioGroup value={value || ''} onValueChange={handleChange} disabled={disabled || field.ReadOnly}>
+                        {fieldOptions.map((option) => {
+                            const optionId = option._id || option.name || option
+                            const optionLabel = option.Name || option.name || option
+                            return (
+                                <div key={optionId} className="flex items-center gap-2">
+                                    <RadioGroupItem value={optionId} id={`${field.Id}-${optionId}`} disabled={disabled || field.ReadOnly} />
+                                    <label
+                                        htmlFor={`${field.Id}-${optionId}`}
+                                        className="text-sm cursor-pointer"
+                                    >
+                                        {optionLabel}
+                                    </label>
+                                </div>
+                            )
+                        })}
+                    </RadioGroup>
+                ) : (
+                    <p className="text-sm text-gray-500">No options available</p>
+                )}
+            </div>
             {error && (
                 <p className="text-sm text-red-600 font-medium flex items-center gap-1.5">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

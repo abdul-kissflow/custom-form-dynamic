@@ -24,10 +24,6 @@ export function SelectField({
             setLoading(true)
             try {
                 const fetchedOptions = await getFieldOptions(field.Id)
-                console.log(
-                    `Fetched options for ${field.Name}:`,
-                    fetchedOptions
-                )
                 setFieldOptions(fetchedOptions)
             } catch (err) {
                 console.error(`Failed to fetch options for ${field.Name}:`, err)

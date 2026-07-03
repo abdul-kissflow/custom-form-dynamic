@@ -3,19 +3,24 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 /**
  * Custom hook to manage form state with full validation, dynamic config, and child table support.
  *
- * @param {string} flowType - "dataform" | "board" | "process"
- * @param {string} flowId - ID of the dataform/board/process
- * @param {string} [instanceId] - Record instance ID (omit to create new)
+ * Takes a single options object (not positional args).
+ *
+ * @param {object} options
+ * @param {"dataform"|"board"|"process"} options.flowType - Flow type
+ * @param {string} options.flowId - ID of the dataform/board/process
+ * @param {string} [options.instanceId] - Record instance ID (omit to create new)
+ * @param {string} [options.viewId] - Dataform/board only: view whose layout & permissions apply
+ * @param {string} [options.activityInstanceId] - Process only: activity (task) instance ID
  *
  * @returns {object}
- *   - formData: object - Current field values
+ *   - formData: object - Current field values. Child-table rows live at formData[tableId].
  *   - config: object - Raw getFormConfiguration() response:
- *       { formPermission: 'Edit'|'ReadOnly', sections: [...] }
+ *       { formPermission: 'Edit'|'View', sections: [...] }
  *     formPermission is the outer VBAC gate (whole flow/view access) and overrides
- *     every field's own Permission when 'ReadOnly'. Each section is either:
+ *     every field's own Permission when 'View'. Each section is either:
  *       { Type:'Section', Id, Name, IsHidden, Permission, Fields:[{Id, Name, Type, Widget, Required, Permission, IsHidden, IsReadOnly, Validations}] } or
  *       { Type:'Model',   Id, Name, IsHidden, Permission, Fields:[...] } (child table columns)
- *   - errors: object - Validation errors { fieldId: [...] }
+ *   - errors: object - Validation errors, nested: { _root: { fieldId: [...] }, tableId: { rowId: { fieldId: [...] } } }
  *   - loading: boolean
  *   - error: string|null
  *   - isDirty: boolean
@@ -23,28 +28,59 @@ import { useEffect, useState, useCallback, useRef } from 'react'
  *   - updateField(fieldId, value): Promise<boolean>
  *   - updateFields(updates): Promise<boolean>
  *   - getField(fieldId): Promise<object>
- *   - getFieldOptions(fieldId): Promise<object[]>
+ *   - getFieldOptions(fieldId, tableId?, rowId?): Promise<object[]>
  *   - getFormData(): Promise<object>
  *   - parseAttachment(fieldId, file): Promise<{appliedFields, suggestedBy}> - process flows only
  *   - save(): Promise<boolean>
  *   - reset(): void
- *   - getTable(tableId): { rows, addRow, addRows, deleteRow, deleteRows, updateRow, getRowField, getSelectedRows }
+ *   - getTable(tableId): { addRow, addRows, deleteRow, deleteRows, updateRow, getRowField, getSelectedRows }
  *
  * @example
- * const { formData, config, updateField, getTable } = useForm("dataform", "EmpMaster", "emp_123");
+ * const { formData, config, updateField, getTable } = useForm({ flowType: "dataform", flowId: "EmpMaster", instanceId: "emp_123" });
  *
- * config.filter(s => !s.isHidden).map(section => {
- *   if (section.type === 'Section') {
- *     return section.fields.map(field =>
- *       <input key={field.id} value={formData[field.id] || ''} onChange={e => updateField(field.id, e.target.value)} />
+ * (config.sections || []).filter(s => !s.IsHidden).map(section => {
+ *   if (section.Type === 'Section') {
+ *     return section.Fields.map(field =>
+ *       <input key={field.Id} value={formData[field.Id] || ''} onChange={e => updateField(field.Id, e.target.value)} />
  *     );
  *   }
- *   if (section.type === 'Model') {
- *     const table = getTable(section.id);
- *     return table.rows.map(row => ...);
+ *   if (section.Type === 'Model') {
+ *     const table = getTable(section.Id);
+ *     return (formData[section.Id] || []).map(row => ...);
  *   }
  * });
  */
+// Only the four scalar keys are comparable by value. Validations is always a
+// new array reference (functions are stripped by sanitizeForPostMessage), so
+// comparing it would always look "changed" and defeat the optimisation.
+const FIELD_STATE_KEYS = ['Permission', 'IsHidden', 'IsReadOnly', 'Required']
+
+function mergeFieldState(config, fieldState) {
+    if (!config?.sections || !fieldState) return config
+    return {
+        ...config,
+        formPermission: fieldState.formPermission ?? config.formPermission,
+        sections: config.sections.map((section) => {
+            const sectionUpdate = fieldState.sections?.[section.Id]
+            const Fields = section.Fields.map((field) => {
+                const update = fieldState.fields?.[field.Id]
+                if (!update) return field
+                const changed = FIELD_STATE_KEYS.some((k) => field[k] !== update[k])
+                return changed ? { ...field, ...update } : field
+            })
+            if (sectionUpdate) {
+                const sectionChanged = Object.keys(sectionUpdate).some(
+                    (k) => section[k] !== sectionUpdate[k],
+                )
+                return sectionChanged
+                    ? { ...section, ...sectionUpdate, Fields }
+                    : { ...section, Fields }
+            }
+            return { ...section, Fields }
+        }),
+    }
+}
+
 export function useForm({flowType, flowId, viewId, instanceId, activityInstanceId}) {
     const [formData, setFormData] = useState({})
     const [config, setConfig] = useState([])
@@ -141,12 +177,16 @@ export function useForm({flowType, flowId, viewId, instanceId, activityInstanceI
                 const currentData = await formInstance.toJSON()
                 if (currentData[fieldId] === value) return true
 
-                    await formInstance.updateField({ [fieldId]: value })
-                const updatedData = await formInstance.toJSON()
+                await formInstance.updateField({ [fieldId]: value })
+                const [updatedData, validationErrors, fieldState] = await Promise.all([
+                    formInstance.toJSON(),
+                    formInstance.getValidationErrors(),
+                    formInstance.getFieldState(),
+                ])
 
                 setFormData(updatedData || {})
-                const validationErrors = await formInstance.getValidationErrors()
                 setErrors(validationErrors || {})
+                setConfig((prev) => mergeFieldState(prev, fieldState))
                 setIsDirty(true)
                 return true
             } catch (err) {
@@ -175,11 +215,15 @@ export function useForm({flowType, flowId, viewId, instanceId, activityInstanceI
 
                 if (!hasChanges) return true
 
-                const updatedData = await formInstance.toJSON()
-                setFormData(updatedData || {})
+                const [updatedData, validationErrors, fieldState] = await Promise.all([
+                    formInstance.toJSON(),
+                    formInstance.getValidationErrors(),
+                    formInstance.getFieldState(),
+                ])
 
-                const validationErrors = await formInstance.getValidationErrors()
+                setFormData(updatedData || {})
                 setErrors(validationErrors || {})
+                setConfig((prev) => mergeFieldState(prev, fieldState))
                 setIsDirty(true)
                 return true
             } catch (err) {
@@ -276,7 +320,16 @@ export function useForm({flowType, flowId, viewId, instanceId, activityInstanceI
             const validationErrors = await formInstance.getValidationErrors()
             setErrors(validationErrors || {})
 
-            if (Object.keys(validationErrors || {}).length > 0) {
+            const hasValidationErrors =
+                Object.keys(validationErrors?.['_root'] || {}).length > 0 ||
+                Object.entries(validationErrors || {})
+                    .filter(([k]) => k !== '_root')
+                    .some(([, rows]) =>
+                        Object.values(rows).some(
+                            (fields) => Object.keys(fields || {}).length > 0,
+                        ),
+                    )
+            if (hasValidationErrors) {
                 setError('Form has validation errors. Please fix them before saving.')
                 return false
             }

@@ -1,4 +1,4 @@
-import KFSDK from 'https://unpkg.com/lowcode-client-sdk@latest/dist/kfsdk.es'
+import KFSDK from '../../../lcnc-sdk-js/packages/sdk/dist/kfsdk.es'
 import React, { useState, useEffect } from 'react'
 
 let kf
