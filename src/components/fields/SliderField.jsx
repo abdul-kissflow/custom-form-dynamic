@@ -17,10 +17,10 @@ export function SliderField({
         <div className="space-y-2">
             <label
                 htmlFor={field.Id}
-                className="block text-sm font-semibold text-gray-700"
+                className="block text-sm font-semibold text-foreground"
             >
                 {field.Name}
-                {field.Required && <span className="text-red-500 ml-1">*</span>}
+                {field.Required && <span className="text-destructive ml-1">*</span>}
             </label>
             <div className="flex items-center gap-4 pt-2">
                 <Slider
@@ -33,12 +33,12 @@ export function SliderField({
                     onValueChange={([val]) => onChange(val)}
                     onValueCommit={([val]) => onBlur(val)}
                 />
-                <span className="w-12 text-right text-sm font-medium text-gray-600 tabular-nums">
+                <span className="w-12 text-right text-sm font-medium text-muted-foreground tabular-nums">
                     {current}
                 </span>
             </div>
             {error && (
-                <p className="text-sm text-red-600 font-medium flex items-center gap-1.5">
+                <p className="text-sm text-destructive font-medium flex items-center gap-1.5">
                     <svg
                         className="w-4 h-4"
                         fill="currentColor"

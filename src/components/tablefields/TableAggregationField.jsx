@@ -7,7 +7,7 @@ const formatValue = (type, value) => {
 
 export function TableAggregationField({ field, value }) {
     return (
-        <span className="flex items-center h-8 px-2 text-sm text-gray-500 select-none">
+        <span className="flex items-center h-8 px-2 text-sm text-muted-foreground select-none">
             {formatValue(field.Type, value)}
         </span>
     )

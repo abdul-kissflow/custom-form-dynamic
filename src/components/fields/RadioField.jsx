@@ -29,13 +29,13 @@ export function RadioField({ field, value, onChange, onBlur, error, disabled = f
 
     return (
         <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
+            <label className="block text-sm font-semibold text-foreground">
                 {field.Name}
-                {field.Required && <span className="text-red-500 ml-1">*</span>}
+                {field.Required && <span className="text-destructive ml-1">*</span>}
             </label>
-            <div className="space-y-2 border border-gray-300 rounded-lg p-3">
+            <div className="space-y-2 border border-input rounded-lg p-3">
                 {loading ? (
-                    <p className="text-sm text-gray-500">Loading options...</p>
+                    <p className="text-sm text-muted-foreground">Loading options...</p>
                 ) : fieldOptions.length > 0 ? (
                     <RadioGroup value={value || ''} onValueChange={handleChange} disabled={disabled || field.ReadOnly}>
                         {fieldOptions.map((option) => {
@@ -55,11 +55,11 @@ export function RadioField({ field, value, onChange, onBlur, error, disabled = f
                         })}
                     </RadioGroup>
                 ) : (
-                    <p className="text-sm text-gray-500">No options available</p>
+                    <p className="text-sm text-muted-foreground">No options available</p>
                 )}
             </div>
             {error && (
-                <p className="text-sm text-red-600 font-medium flex items-center gap-1.5">
+                <p className="text-sm text-destructive font-medium flex items-center gap-1.5">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18.101 12.93a1 1 0 00-1.414-1.414L10 15.586 7.707 13.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8.5-8.5z" clipRule="evenodd" />
                     </svg>

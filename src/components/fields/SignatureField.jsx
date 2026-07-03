@@ -166,10 +166,10 @@ export function SignatureField({
         <div className="space-y-2">
             <label
                 htmlFor={field.Id}
-                className="block text-sm font-semibold text-gray-700"
+                className="block text-sm font-semibold text-foreground"
             >
                 {field.Name}
-                {field.Required && <span className="text-red-500 ml-1">*</span>}
+                {field.Required && <span className="text-destructive ml-1">*</span>}
             </label>
 
             {/* Display */}
@@ -177,14 +177,14 @@ export function SignatureField({
                 <>
                     {value ? (
                         <div
-                            className={`relative group rounded-lg border overflow-hidden bg-gray-50 ${
-                                error ? 'border-red-300' : 'border-gray-200'
+                            className={`relative group rounded-lg border overflow-hidden bg-muted ${
+                                error ? 'border-destructive/50' : 'border-border'
                             }`}
                             style={{ height: '80px', maxWidth: '300px' }}
                         >
                             {resolving && (
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                                 </div>
                             )}
                             {!resolving && previewUrl && (
@@ -195,18 +195,18 @@ export function SignatureField({
                                 />
                             )}
                             {!readOnly && (
-                                <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80">
+                                <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80">
                                     <button
                                         type="button"
                                         onClick={() => setIsEditing(true)}
-                                        className="px-2 py-1 text-xs font-medium text-blue-600 border border-blue-200 rounded hover:bg-blue-50"
+                                        className="px-2 py-1 text-xs font-medium text-primary border border-primary/40 rounded hover:bg-primary/10"
                                     >
                                         Edit
                                     </button>
                                     <button
                                         type="button"
                                         onClick={handleRemove}
-                                        className="p-1 text-gray-500 border border-gray-200 rounded hover:text-red-600 hover:border-red-200"
+                                        className="p-1 text-muted-foreground border border-border rounded hover:text-destructive hover:border-destructive/40"
                                     >
                                         <X className="w-3.5 h-3.5" />
                                     </button>
@@ -215,7 +215,7 @@ export function SignatureField({
                         </div>
                     ) : readOnly ? (
                         <div
-                            className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-gray-400 text-sm"
+                            className="flex items-center justify-center rounded-lg border border-dashed border-border bg-muted text-muted-foreground text-sm"
                             style={{ height: '80px', maxWidth: '300px' }}
                         >
                             No signature
@@ -225,10 +225,10 @@ export function SignatureField({
                             id={field.Id}
                             type="button"
                             onClick={() => setIsEditing(true)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed text-sm text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors ${
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed text-sm text-muted-foreground hover:border-input hover:text-foreground transition-colors ${
                                 error
-                                    ? 'border-red-300 bg-red-50'
-                                    : 'border-gray-300 bg-gray-50'
+                                    ? 'border-destructive/50 bg-destructive/10'
+                                    : 'border-input bg-muted'
                             }`}
                         >
                             <PenLine className="w-4 h-4" />
@@ -240,9 +240,9 @@ export function SignatureField({
 
             {/* Inline editor */}
             {isEditing && (
-                <div className="rounded-lg border border-gray-200 overflow-hidden">
+                <div className="rounded-lg border border-border overflow-hidden">
                     {/* Tabs */}
-                    <div className="flex border-b border-gray-200 bg-gray-50">
+                    <div className="flex border-b border-border bg-muted">
                         {['draw', 'upload'].map((tab) => (
                             <button
                                 key={tab}
@@ -250,8 +250,8 @@ export function SignatureField({
                                 onClick={() => setActiveTab(tab)}
                                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                                     activeTab === tab
-                                        ? 'border-blue-500 text-blue-600 bg-white'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                                        ? 'border-ring text-primary bg-background'
+                                        : 'border-transparent text-muted-foreground hover:text-foreground'
                                 }`}
                             >
                                 {tab === 'draw' ? 'Draw' : 'Upload'}
@@ -260,10 +260,10 @@ export function SignatureField({
                     </div>
 
                     {activeTab === 'draw' ? (
-                        <div className="p-3 space-y-2 bg-white">
+                        <div className="p-3 space-y-2 bg-background">
                             <canvas
                                 ref={canvasRef}
-                                className="w-full rounded border border-gray-200 bg-white cursor-crosshair touch-none"
+                                className="w-full rounded border border-border bg-background cursor-crosshair touch-none"
                                 style={{ height: '160px', display: 'block' }}
                                 onMouseDown={startDraw}
                                 onMouseMove={draw}
@@ -277,7 +277,7 @@ export function SignatureField({
                                 <button
                                     type="button"
                                     onClick={clearCanvas}
-                                    className="text-xs text-gray-500 hover:text-gray-700 underline underline-offset-2"
+                                    className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
                                 >
                                     Clear
                                 </button>
@@ -286,7 +286,7 @@ export function SignatureField({
                                         type="button"
                                         onClick={() => setIsEditing(false)}
                                         disabled={saving}
-                                        className="px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                                        className="px-3 py-1.5 text-sm text-muted-foreground border border-border rounded-md hover:bg-muted disabled:opacity-50"
                                     >
                                         Cancel
                                     </button>
@@ -294,7 +294,7 @@ export function SignatureField({
                                         type="button"
                                         onClick={handleSaveDraw}
                                         disabled={saving}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
                                     >
                                         {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                                         Save
@@ -303,15 +303,15 @@ export function SignatureField({
                             </div>
                         </div>
                     ) : (
-                        <div className="p-3 bg-white flex flex-col items-center gap-3 py-6">
-                            <p className="text-sm text-gray-500">
+                        <div className="p-3 bg-background flex flex-col items-center gap-3 py-6">
+                            <p className="text-sm text-muted-foreground">
                                 Upload a JPG or PNG image of your signature
                             </p>
                             <div className="flex gap-2">
                                 <button
                                     type="button"
                                     onClick={() => setIsEditing(false)}
-                                    className="px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50"
+                                    className="px-3 py-1.5 text-sm text-muted-foreground border border-border rounded-md hover:bg-muted"
                                 >
                                     Cancel
                                 </button>
@@ -319,7 +319,7 @@ export function SignatureField({
                                     type="button"
                                     onClick={handleUpload}
                                     disabled={picking}
-                                    className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                                    className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium border border-input rounded-md hover:bg-muted disabled:opacity-50"
                                 >
                                     {picking ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -335,7 +335,7 @@ export function SignatureField({
             )}
 
             {error && !isEditing && (
-                <p className="text-sm text-red-600">
+                <p className="text-sm text-destructive">
                     {Array.isArray(error) ? error[0] : error}
                 </p>
             )}

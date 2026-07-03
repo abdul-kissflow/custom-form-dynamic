@@ -16,9 +16,9 @@ export function TableChecklistField({ field, value, onChange, onBlur, disabled }
                 <button
                     type="button"
                     disabled={disabled || field.ReadOnly}
-                    className="flex items-center gap-1.5 h-8 px-2 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                    className="flex items-center gap-1.5 h-8 px-2 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed w-full"
                 >
-                    <ListChecks className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <ListChecks className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                     <span className="text-xs">
                         {total === 0 ? 'No items' : `${checked} / ${total}`}
                     </span>

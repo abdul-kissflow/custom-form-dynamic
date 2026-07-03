@@ -33,11 +33,11 @@ export function TableMultiUserSelectField({ field, value, onChange, onBlur, disa
                 <button
                     type="button"
                     disabled={disabled || field.ReadOnly}
-                    className="w-full min-w-[120px] h-8 flex items-center gap-1 px-2 text-sm bg-white border border-gray-200 rounded-md hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full min-w-[120px] h-8 flex items-center gap-1 px-2 text-sm bg-background border border-border rounded-md hover:border-input disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <span className="flex-1 flex items-center gap-1 overflow-hidden min-w-0">
                         {checkedUsers.length === 0 ? (
-                            <span className="text-gray-400 text-xs">—</span>
+                            <span className="text-muted-foreground text-xs">—</span>
                         ) : (
                             <>
                                 {checkedUsers.slice(0, 2).map((user) => (
@@ -53,13 +53,13 @@ export function TableMultiUserSelectField({ field, value, onChange, onBlur, disa
                             </>
                         )}
                     </span>
-                    <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 </button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-1" align="start">
                 <ScrollArea className="max-h-48">
                     {options.length === 0 ? (
-                        <p className="text-sm text-gray-400 py-2 px-2">No users</p>
+                        <p className="text-sm text-muted-foreground py-2 px-2">No users</p>
                     ) : (
                         options.map((user) => {
                             const id = user._id || user
@@ -68,12 +68,12 @@ export function TableMultiUserSelectField({ field, value, onChange, onBlur, disa
                                     key={id}
                                     type="button"
                                     onClick={() => handleToggle(user)}
-                                    className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-gray-50 cursor-pointer text-left"
+                                    className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-muted cursor-pointer text-left"
                                 >
                                     <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
                                         isChecked(user)
-                                            ? 'bg-blue-500 border-blue-500 text-white'
-                                            : 'border-gray-300'
+                                            ? 'bg-primary/100 border-ring text-primary-foreground'
+                                            : 'border-input'
                                     }`}>
                                         {isChecked(user) && <Check className="w-2.5 h-2.5" />}
                                     </div>

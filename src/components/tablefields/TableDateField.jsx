@@ -10,7 +10,7 @@ export function TableDateField({ field, value, onChange, onBlur, disabled }) {
             onChange={(e) => onChange(e.target.value || null)}
             onBlur={(e) => onBlur(e.target.value || null)}
             disabled={disabled || field.ReadOnly}
-            className="h-8 text-sm px-2 border-gray-200 focus-visible:ring-1 focus-visible:ring-blue-400 bg-white"
+            className="h-8 text-sm px-2 border-border focus-visible:ring-1 focus-visible:ring-ring bg-background"
         />
     )
 }

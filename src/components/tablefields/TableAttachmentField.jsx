@@ -20,9 +20,9 @@ export function TableAttachmentField({ field, value, onChange, onBlur, disabled 
                 type="button"
                 onClick={() => setOpen(true)}
                 disabled={disabled && field.ReadOnly}
-                className="flex items-center gap-1.5 h-8 px-2 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                className="flex items-center gap-1.5 h-8 px-2 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed w-full"
             >
-                <Paperclip className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                <Paperclip className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 <span className="text-xs">
                     {count === 0 ? 'No files' : `${count} file${count !== 1 ? 's' : ''}`}
                 </span>

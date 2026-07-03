@@ -45,10 +45,10 @@ export function SelectField({
         <div className="space-y-2">
             <label
                 htmlFor={field.Id}
-                className="block text-sm font-semibold text-gray-700"
+                className="block text-sm font-semibold text-foreground"
             >
                 {field.Name}
-                {field.Required && <span className="text-red-500 ml-1">*</span>}
+                {field.Required && <span className="text-destructive ml-1">*</span>}
             </label>
             <Select
                 value={value || ''}
@@ -57,7 +57,7 @@ export function SelectField({
             >
                 <SelectTrigger
                     id={field.Id}
-                    className={error ? 'border-red-300 bg-red-50' : ''}
+                    className={error ? 'border-destructive/50 bg-destructive/10' : ''}
                 >
                     <SelectValue
                         placeholder={`Select ${field.Name.toLowerCase()}`}
@@ -75,7 +75,7 @@ export function SelectField({
                 </SelectContent>
             </Select>
             {error && (
-                <p className="text-sm text-red-600 font-medium flex items-center gap-1.5">
+                <p className="text-sm text-destructive font-medium flex items-center gap-1.5">
                     <svg
                         className="w-4 h-4"
                         fill="currentColor"

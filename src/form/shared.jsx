@@ -111,7 +111,7 @@ export const TableFieldCell = memo(function TableFieldCellInner({
                 getFieldOptions={boundGetFieldOptions}
             />
             {hasError && (
-                <p className="mt-0.5 text-[10px] text-red-500 leading-tight">
+                <p className="mt-0.5 text-[10px] text-destructive leading-tight">
                     {Array.isArray(error) ? error[0] : error}
                 </p>
             )}
@@ -120,15 +120,15 @@ export const TableFieldCell = memo(function TableFieldCellInner({
 })
 
 const DEFAULT_TABLE_THEME = {
-    theadClass: 'bg-slate-50 border-b border-[--color-border]',
+    theadClass: 'bg-muted border-b border-[--color-border]',
     thClass:
-        'px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap min-w-[140px]',
+        'px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap min-w-[140px]',
     rowBorder: 'border-b border-[--color-border] last:border-0',
-    rowBase: 'bg-white',
-    rowAlt: 'bg-slate-50/30',
-    rowHover: 'hover:bg-slate-50/60',
+    rowBase: 'bg-background',
+    rowAlt: 'bg-muted/30',
+    rowHover: 'hover:bg-muted/60',
     deleteBtn:
-        'p-1 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors',
+        'p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors',
     wrapperClass: 'overflow-x-auto',
 }
 
@@ -156,7 +156,7 @@ export function SectionTable({
                             <th key={col.Id} className={t.thClass}>
                                 {col.Name}
                                 {col.Required && (
-                                    <span className="text-red-500 ml-0.5">
+                                    <span className="text-destructive ml-0.5">
                                         *
                                     </span>
                                 )}
@@ -170,7 +170,7 @@ export function SectionTable({
                         <tr>
                             <td
                                 colSpan={columns.length + 1}
-                                className="px-4 py-10 text-center text-slate-400 text-sm"
+                                className="px-4 py-10 text-center text-muted-foreground text-sm"
                             >
                                 No rows yet
                             </td>

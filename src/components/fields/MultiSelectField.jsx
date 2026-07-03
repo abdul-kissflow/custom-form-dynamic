@@ -55,9 +55,9 @@ export function MultiSelectField({ field, value, onChange, onBlur, error, disabl
 
     return (
         <div className="min-w-0 space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
+            <label className="block text-sm font-semibold text-foreground">
                 {field.Name}
-                {field.Required && <span className="text-red-500 ml-1">*</span>}
+                {field.Required && <span className="text-destructive ml-1">*</span>}
             </label>
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
@@ -65,14 +65,14 @@ export function MultiSelectField({ field, value, onChange, onBlur, error, disabl
                         type="button"
                         disabled={readOnly || loading}
                         className={`flex min-h-9 w-full items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-                            error ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                        } ${readOnly ? 'bg-gray-50' : 'bg-white cursor-pointer hover:border-gray-400'}`}
+                            error ? 'border-destructive/50 bg-destructive/10' : 'border-input'
+                        } ${readOnly ? 'bg-muted' : 'bg-background cursor-pointer hover:border-input'}`}
                     >
                         <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
                             {loading ? (
-                                <span className="text-sm text-gray-400">Loading…</span>
+                                <span className="text-sm text-muted-foreground">Loading…</span>
                             ) : selectedOptions.length === 0 ? (
-                                <span className="text-sm text-gray-400">
+                                <span className="text-sm text-muted-foreground">
                                     Select {field.Name.toLowerCase()}…
                                 </span>
                             ) : (
@@ -85,7 +85,7 @@ export function MultiSelectField({ field, value, onChange, onBlur, error, disabl
                                             <span
                                                 role="button"
                                                 onClick={(e) => handleRemove(e, getId(opt))}
-                                                className="rounded-full p-0.5 hover:bg-black/10"
+                                                className="rounded-full p-0.5 hover:bg-foreground/10"
                                                 aria-label={`Remove ${getLabel(opt)}`}
                                             >
                                                 <X className="w-3 h-3" />
@@ -95,13 +95,13 @@ export function MultiSelectField({ field, value, onChange, onBlur, error, disabl
                                 ))
                             )}
                         </span>
-                        <ChevronDown className="w-4 h-4 shrink-0 text-gray-400" />
+                        <ChevronDown className="w-4 h-4 shrink-0 text-muted-foreground" />
                     </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-72 p-1" align="start">
                     <ScrollArea className="max-h-56">
                         {fieldOptions.length === 0 ? (
-                            <p className="px-2 py-2 text-sm text-gray-400">
+                            <p className="px-2 py-2 text-sm text-muted-foreground">
                                 No options available
                             </p>
                         ) : (
@@ -112,13 +112,13 @@ export function MultiSelectField({ field, value, onChange, onBlur, error, disabl
                                         key={id}
                                         type="button"
                                         onClick={() => handleToggle(opt)}
-                                        className="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-gray-50"
+                                        className="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-muted"
                                     >
                                         <div
                                             className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
                                                 isChecked(opt)
-                                                    ? 'border-blue-500 bg-blue-500 text-white'
-                                                    : 'border-gray-300'
+                                                    ? 'border-ring bg-primary/100 text-primary-foreground'
+                                                    : 'border-input'
                                             }`}
                                         >
                                             {isChecked(opt) && <Check className="w-2.5 h-2.5" />}
@@ -132,7 +132,7 @@ export function MultiSelectField({ field, value, onChange, onBlur, error, disabl
                 </PopoverContent>
             </Popover>
             {error && (
-                <p className="text-sm text-red-600 font-medium flex items-center gap-1.5">
+                <p className="text-sm text-destructive font-medium flex items-center gap-1.5">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18.101 12.93a1 1 0 00-1.414-1.414L10 15.586 7.707 13.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8.5-8.5z" clipRule="evenodd" />
                     </svg>

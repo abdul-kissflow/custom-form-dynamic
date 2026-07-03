@@ -22,7 +22,7 @@ export function TableSelectField({ field, value, onChange, onBlur, disabled, get
             onValueChange={handleChange}
             disabled={disabled || field.ReadOnly}
         >
-            <SelectTrigger className="h-8 text-sm px-2 border-gray-200 bg-white focus:ring-1 focus:ring-blue-400 w-full min-w-[100px]">
+            <SelectTrigger className="h-8 text-sm px-2 border-border bg-background focus:ring-1 focus:ring-ring w-full min-w-[100px]">
                 <SelectValue placeholder="—" />
             </SelectTrigger>
             <SelectContent>

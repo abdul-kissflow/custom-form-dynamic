@@ -26,11 +26,11 @@ export function TableSignatureField({ field, value, onChange, onBlur, disabled }
             >
                 {value ? (
                     <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                        <span className="text-green-700 text-xs font-medium">Signed</span>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" />
+                        <span className="text-success text-xs font-medium">Signed</span>
                     </>
                 ) : (
-                    <span className="text-gray-400 text-xs">—</span>
+                    <span className="text-muted-foreground text-xs">—</span>
                 )}
             </button>
 

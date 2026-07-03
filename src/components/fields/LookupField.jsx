@@ -41,26 +41,26 @@ export function RecordCard({ record, columns, headerKey, isSelected, onClick, sh
             onClick={onClick}
             className={`w-full text-left rounded-lg border px-4 py-3 transition-colors cursor-pointer ${
                 isSelected
-                    ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
-                    : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-ring bg-primary/10 ring-1 ring-ring'
+                    : 'border-border bg-background hover:border-input hover:bg-muted'
             }`}
         >
             <div className="flex items-start justify-between gap-2">
-                <p className="min-w-0 flex-1 truncate font-semibold text-gray-900 text-sm leading-snug">
+                <p className="min-w-0 flex-1 truncate font-semibold text-foreground text-sm leading-snug">
                     {formatFieldValue(title)}
                 </p>
                 {showCheck && isSelected && (
-                    <Check className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                    <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                 )}
             </div>
             {bodyColumns.length > 0 && (
                 <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2">
                     {bodyColumns.map((col) => (
                         <div key={col.Id} className="min-w-0">
-                            <p className="text-xs text-gray-400 truncate">
+                            <p className="text-xs text-muted-foreground truncate">
                                 {col.Name}
                             </p>
-                            <p className="text-sm text-gray-700 truncate">
+                            <p className="text-sm text-foreground truncate">
                                 {formatFieldValue(record[col.Id])}
                             </p>
                         </div>
@@ -148,9 +148,9 @@ export function LookupField({
 
     return (
         <div className="min-w-0 space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
+            <label className="block text-sm font-semibold text-foreground">
                 {field.Name}
-                {field.Required && <span className="text-red-500 ml-1">*</span>}
+                {field.Required && <span className="text-destructive ml-1">*</span>}
             </label>
 
             {/* Trigger */}
@@ -160,12 +160,12 @@ export function LookupField({
                 disabled={readOnly}
                 className={`w-full text-left rounded-md border transition-colors ${
                     error
-                        ? 'border-red-300 bg-red-50'
-                        : 'border-gray-300 bg-white'
+                        ? 'border-destructive/50 bg-destructive/10'
+                        : 'border-input bg-background'
                 } ${
                     readOnly
-                        ? 'bg-gray-50 cursor-default'
-                        : 'hover:border-gray-400 cursor-pointer'
+                        ? 'bg-muted cursor-default'
+                        : 'hover:border-input cursor-pointer'
                 }`}
             >
                 {value ? (
@@ -181,7 +181,7 @@ export function LookupField({
                             <button
                                 type="button"
                                 onClick={handleClear}
-                                className="absolute top-2 right-2 p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+                                className="absolute top-2 right-2 p-1 rounded-full text-muted-foreground hover:text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
                                 aria-label="Clear selection"
                             >
                                 <X className="w-4 h-4" />
@@ -189,7 +189,7 @@ export function LookupField({
                         )}
                     </div>
                 ) : (
-                    <div className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm text-gray-400">
+                    <div className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm text-muted-foreground">
                         <span className="min-w-0 flex-1 truncate">
                             Select {field.Name.toLowerCase()}…
                         </span>
@@ -201,19 +201,19 @@ export function LookupField({
             {/* Picker dialog */}
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden">
-                    <DialogHeader className="px-4 pt-4 pb-3 border-b border-gray-100">
+                    <DialogHeader className="px-4 pt-4 pb-3 border-b border-border">
                         <DialogTitle className="text-base font-semibold">
                             {field.Name}
                         </DialogTitle>
                         <div className="relative mt-2">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                             <input
                                 ref={searchRef}
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search…"
-                                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-md bg-gray-50 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white focus:ring-1 focus:ring-blue-400 transition-colors"
+                                className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-md bg-muted placeholder-muted-foreground focus:outline-none focus:border-ring focus:bg-background focus:ring-1 focus:ring-ring transition-colors"
                             />
                         </div>
                     </DialogHeader>
@@ -221,12 +221,12 @@ export function LookupField({
                     <ScrollArea className="max-h-[420px]">
                         <div className="p-3 space-y-2">
                             {loading ? (
-                                <div className="flex items-center justify-center py-10 text-gray-400 gap-2">
+                                <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
                                     <Loader2 className="w-4 h-4 animate-spin" />
                                     <span className="text-sm">Loading…</span>
                                 </div>
                             ) : filtered.length === 0 ? (
-                                <p className="text-center text-sm text-gray-400 py-10">
+                                <p className="text-center text-sm text-muted-foreground py-10">
                                     {search
                                         ? 'No results match your search'
                                         : 'No options available'}
@@ -250,7 +250,7 @@ export function LookupField({
             </Dialog>
 
             {error && (
-                <p className="text-sm text-red-600 font-medium flex items-center gap-1.5">
+                <p className="text-sm text-destructive font-medium flex items-center gap-1.5">
                     <svg
                         className="w-4 h-4"
                         fill="currentColor"

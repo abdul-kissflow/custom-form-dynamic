@@ -127,22 +127,22 @@ export function CurrencyField({
         <div className="space-y-2">
             <label
                 htmlFor={field.Id}
-                className="block text-sm font-semibold text-gray-700"
+                className="block text-sm font-semibold text-foreground"
             >
                 {field.Name}
-                {field.Required && <span className="text-red-500 ml-1">*</span>}
+                {field.Required && <span className="text-destructive ml-1">*</span>}
             </label>
             <div
                 className={`flex rounded-md border overflow-hidden transition-colors ${
                     hasError
-                        ? 'border-red-300'
+                        ? 'border-destructive/50'
                         : isFocused
-                          ? 'border-blue-500 ring-2 ring-blue-500'
-                          : 'border-gray-300'
-                } ${readOnly ? 'bg-gray-50' : 'bg-white'}`}
+                          ? 'border-ring ring-2 ring-ring'
+                          : 'border-input'
+                } ${readOnly ? 'bg-muted' : 'bg-background'}`}
             >
                 {currencySymbol && (
-                    <span className="flex items-center px-3 text-sm text-gray-500 border-r border-gray-200 bg-gray-50 select-none">
+                    <span className="flex items-center px-3 text-sm text-muted-foreground border-r border-border bg-muted select-none">
                         {currencySymbol}
                     </span>
                 )}
@@ -159,7 +159,7 @@ export function CurrencyField({
                     className="flex-1 border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
                 />
                 {isFixed && (
-                    <span className="flex items-center px-3 text-sm text-gray-600 border-l border-gray-200 bg-gray-50 select-none">
+                    <span className="flex items-center px-3 text-sm text-muted-foreground border-l border-border bg-muted select-none">
                         {selectedCurrency}
                     </span>
                 )}
@@ -169,7 +169,7 @@ export function CurrencyField({
                         onValueChange={handleCurrencyChange}
                         disabled={readOnly}
                     >
-                        <SelectTrigger className="w-24 border-0 border-l border-gray-200 rounded-none shadow-none focus:ring-0 bg-gray-50">
+                        <SelectTrigger className="w-24 border-0 border-l border-border rounded-none shadow-none focus:ring-0 bg-muted">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -183,7 +183,7 @@ export function CurrencyField({
                 )}
             </div>
             {hasError && (
-                <p className="text-sm text-red-600 font-medium flex items-center gap-1.5">
+                <p className="text-sm text-destructive font-medium flex items-center gap-1.5">
                     <svg
                         className="w-4 h-4"
                         fill="currentColor"

@@ -79,10 +79,10 @@ export function TableCurrencyField({ field, value, onChange, onBlur, disabled })
 
     return (
         <div className={`flex h-8 rounded border overflow-hidden transition-colors ${
-            isFocused ? 'border-blue-400 ring-1 ring-blue-400' : 'border-gray-200'
-        } ${readOnly ? 'bg-gray-50' : 'bg-white'}`}>
+            isFocused ? 'border-ring ring-1 ring-ring' : 'border-border'
+        } ${readOnly ? 'bg-muted' : 'bg-background'}`}>
             {currencySymbol && (
-                <span className="flex items-center px-2 text-xs text-gray-500 border-r border-gray-200 bg-gray-50 select-none shrink-0">
+                <span className="flex items-center px-2 text-xs text-muted-foreground border-r border-border bg-muted select-none shrink-0">
                     {currencySymbol}
                 </span>
             )}
@@ -98,7 +98,7 @@ export function TableCurrencyField({ field, value, onChange, onBlur, disabled })
                 className="flex-1 h-full border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-sm px-2"
             />
             {isFixed && (
-                <span className="flex items-center px-2 text-xs text-gray-600 border-l border-gray-200 bg-gray-50 select-none shrink-0">
+                <span className="flex items-center px-2 text-xs text-muted-foreground border-l border-border bg-muted select-none shrink-0">
                     {selectedCurrency}
                 </span>
             )}
@@ -108,7 +108,7 @@ export function TableCurrencyField({ field, value, onChange, onBlur, disabled })
                     onValueChange={handleCurrencyChange}
                     disabled={readOnly}
                 >
-                    <SelectTrigger className="w-20 h-full border-0 border-l border-gray-200 rounded-none shadow-none focus:ring-0 bg-gray-50 text-xs">
+                    <SelectTrigger className="w-20 h-full border-0 border-l border-border rounded-none shadow-none focus:ring-0 bg-muted text-xs">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

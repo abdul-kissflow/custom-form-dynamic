@@ -83,14 +83,14 @@ export function TableLookupField({ field, value, onChange, onBlur, disabled, get
             >
                 {displayTitle ? (
                     <>
-                        <span className="flex-1 truncate text-left text-gray-800 text-xs">
+                        <span className="flex-1 truncate text-left text-foreground text-xs">
                             {String(displayTitle)}
                         </span>
                         {!readOnly && (
                             <button
                                 type="button"
                                 onClick={handleClear}
-                                className="shrink-0 text-gray-400 hover:text-gray-600 cursor-pointer"
+                                className="shrink-0 text-muted-foreground hover:text-muted-foreground cursor-pointer"
                                 aria-label="Clear"
                             >
                                 <X className="w-3 h-3" />
@@ -99,27 +99,27 @@ export function TableLookupField({ field, value, onChange, onBlur, disabled, get
                     </>
                 ) : (
                     <>
-                        <span className="flex-1 text-gray-400 text-xs">—</span>
-                        <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        <span className="flex-1 text-muted-foreground text-xs">—</span>
+                        <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                     </>
                 )}
             </button>
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden">
-                    <DialogHeader className="px-4 pt-4 pb-3 border-b border-gray-100">
+                    <DialogHeader className="px-4 pt-4 pb-3 border-b border-border">
                         <DialogTitle className="text-base font-semibold">
                             {field.Name}
                         </DialogTitle>
                         <div className="relative mt-2">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                             <input
                                 ref={searchRef}
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search…"
-                                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-md bg-gray-50 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-white focus:ring-1 focus:ring-blue-400 transition-colors"
+                                className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-md bg-muted placeholder-muted-foreground focus:outline-none focus:border-ring focus:bg-background focus:ring-1 focus:ring-ring transition-colors"
                             />
                         </div>
                     </DialogHeader>
@@ -127,12 +127,12 @@ export function TableLookupField({ field, value, onChange, onBlur, disabled, get
                     <ScrollArea className="max-h-[420px]">
                         <div className="p-3 space-y-2">
                             {loading ? (
-                                <div className="flex items-center justify-center py-10 text-gray-400 gap-2">
+                                <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
                                     <Loader2 className="w-4 h-4 animate-spin" />
                                     <span className="text-sm">Loading…</span>
                                 </div>
                             ) : filtered.length === 0 ? (
-                                <p className="text-center text-sm text-gray-400 py-10">
+                                <p className="text-center text-sm text-muted-foreground py-10">
                                     {search ? 'No results match your search' : 'No options available'}
                                 </p>
                             ) : (

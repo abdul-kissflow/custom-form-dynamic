@@ -98,26 +98,26 @@ export function SmartAttachmentField({
         <div className="space-y-2">
             <label
                 htmlFor={field.Id}
-                className="flex items-center gap-1.5 text-sm font-semibold text-gray-700"
+                className="flex items-center gap-1.5 text-sm font-semibold text-foreground"
             >
                 {field.Name}
-                {field.Required && <span className="text-red-500 ml-1">*</span>}
-                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                {field.Required && <span className="text-destructive ml-1">*</span>}
+                <Sparkles className="w-3.5 h-3.5 text-info" />
             </label>
             <div
                 id={field.Id}
-                className="space-y-2 border border-gray-300 rounded-lg p-3"
+                className="space-y-2 border border-input rounded-lg p-3"
             >
                 {file ? (
                     <div
                         onClick={handlePreview}
-                        className="group flex items-center gap-2.5 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 cursor-pointer hover:border-gray-300 hover:bg-gray-100 transition-colors"
+                        className="group flex items-center gap-2.5 rounded-md border border-border bg-muted px-3 py-2 cursor-pointer hover:border-input hover:bg-muted transition-colors"
                     >
-                        <Icon className="w-5 h-5 text-gray-400 shrink-0" />
+                        <Icon className="w-5 h-5 text-muted-foreground shrink-0" />
                         <div className="min-w-0 flex-1">
-                            <p className="text-sm text-gray-700 truncate">{file.name}</p>
+                            <p className="text-sm text-foreground truncate">{file.name}</p>
                             {file.size != null && (
-                                <p className="text-xs text-gray-400">
+                                <p className="text-xs text-muted-foreground">
                                     {formatSize(file.size)}
                                 </p>
                             )}
@@ -126,7 +126,7 @@ export function SmartAttachmentField({
                             <button
                                 type="button"
                                 onClick={handleRemove}
-                                className="p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-red-600 hover:bg-white"
+                                className="p-1 rounded-full text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-destructive hover:bg-background"
                                 aria-label={`Remove ${file.name}`}
                             >
                                 <X className="w-3.5 h-3.5" />
@@ -134,7 +134,7 @@ export function SmartAttachmentField({
                         )}
                     </div>
                 ) : (
-                    <p className="text-sm text-gray-500">No file attached</p>
+                    <p className="text-sm text-muted-foreground">No file attached</p>
                 )}
 
                 {!readOnly && !file && (
@@ -142,7 +142,7 @@ export function SmartAttachmentField({
                         type="button"
                         onClick={handlePick}
                         disabled={picking}
-                        className="w-full flex items-center justify-center gap-2 rounded-md border border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-500 transition-colors cursor-pointer hover:border-gray-400 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="w-full flex items-center justify-center gap-2 rounded-md border border-dashed border-input bg-muted px-3 py-2 text-sm text-muted-foreground transition-colors cursor-pointer hover:border-input hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {picking ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -154,14 +154,14 @@ export function SmartAttachmentField({
                 )}
 
                 {parsing && (
-                    <p className="flex items-center gap-1.5 text-sm text-purple-600">
+                    <p className="flex items-center gap-1.5 text-sm text-info">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         Autofilling fields from {file?.name}...
                     </p>
                 )}
 
                 {!parsing && autofillResult && (
-                    <p className="text-sm text-purple-600">
+                    <p className="text-sm text-info">
                         Auto-filled {autofillResult.appliedFields?.length || 0} field
                         {autofillResult.appliedFields?.length === 1 ? '' : 's'} from{' '}
                         {autofillResult.suggestedBy}
@@ -169,11 +169,11 @@ export function SmartAttachmentField({
                 )}
 
                 {!parsing && parseError && (
-                    <p className="text-sm text-red-600">{parseError}</p>
+                    <p className="text-sm text-destructive">{parseError}</p>
                 )}
             </div>
             {error && (
-                <p className="text-sm text-red-600 font-medium flex items-center gap-1.5">
+                <p className="text-sm text-destructive font-medium flex items-center gap-1.5">
                     <svg
                         className="w-4 h-4"
                         fill="currentColor"

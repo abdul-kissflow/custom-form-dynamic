@@ -47,7 +47,7 @@ export function TableImageField({ field, value, onChange, onBlur, disabled }) {
                 className="flex items-center justify-center h-8 w-full px-2 overflow-hidden"
             >
                 {resolving ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                 ) : previewUrl ? (
                     <img
                         src={previewUrl}
@@ -55,7 +55,7 @@ export function TableImageField({ field, value, onChange, onBlur, disabled }) {
                         className="h-7 w-7 object-cover rounded"
                     />
                 ) : (
-                    <ImageIcon className="w-4 h-4 text-gray-400" />
+                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
                 )}
             </button>
 

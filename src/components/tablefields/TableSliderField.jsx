@@ -18,7 +18,7 @@ export function TableSliderField({ field, value, onChange, onBlur, disabled }) {
                 onValueCommit={([val]) => onBlur(val)}
                 className="flex-1"
             />
-            <span className="w-8 text-right text-xs font-medium text-gray-600 tabular-nums shrink-0">
+            <span className="w-8 text-right text-xs font-medium text-muted-foreground tabular-nums shrink-0">
                 {current}
             </span>
         </div>

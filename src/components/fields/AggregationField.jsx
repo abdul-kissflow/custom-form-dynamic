@@ -20,13 +20,13 @@ export function AggregationField({ field, value }) {
 
     return (
         <div className="space-y-2">
-            <label htmlFor={field.Id} className="block text-sm font-semibold text-gray-700">
+            <label htmlFor={field.Id} className="block text-sm font-semibold text-foreground">
                 {field.Name}
-                {field.Required && <span className="text-red-500 ml-1">*</span>}
+                {field.Required && <span className="text-destructive ml-1">*</span>}
             </label>
             <div className="relative">
                 {isCurrency && (
-                    <span className="absolute left-3 top-2.5 text-gray-600 text-sm">$</span>
+                    <span className="absolute left-3 top-2.5 text-muted-foreground text-sm">$</span>
                 )}
                 <Input
                     id={field.Id}
@@ -34,7 +34,7 @@ export function AggregationField({ field, value }) {
                     name={field.Id}
                     value={formatValue(field.Type, value)}
                     readOnly
-                    className={`bg-gray-50 cursor-default ${isCurrency ? 'pl-8' : ''}`}
+                    className={`bg-muted cursor-default ${isCurrency ? 'pl-8' : ''}`}
                 />
             </div>
         </div>

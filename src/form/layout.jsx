@@ -1,5 +1,6 @@
 import { FormField, SectionTable } from './shared.jsx'
-import { CheckIcon, PlusIcon, SpinnerIcon } from './icons.jsx'
+import { CheckIcon, MoonIcon, PlusIcon, SpinnerIcon, SunIcon } from './icons.jsx'
+import { useTheme } from '../hooks/useTheme.js'
 
 /* ─────────────────────────────────────────────────────────────────────────────
    FORM LAYOUT  —  Neutral card, sticky action bar, one section per block
@@ -26,6 +27,7 @@ export function FormLayout({
     parseAttachment,
     getTable,
 }) {
+    const { isDark, toggleTheme } = useTheme()
     const rootErrors = Object.keys(errors?.['_root'] || {})
     const tableErrorCount = Object.entries(errors || {})
         .filter(([k]) => k !== '_root')
@@ -51,20 +53,20 @@ export function FormLayout({
                 noValidate
             >
                 {/* ── Sticky top bar ───────────────────────────────────── */}
-                <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-sm border-b border-[--color-border]">
+                <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-sm border-b border-[--color-border]">
                     <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3 min-w-0">
                             <h1 className="text-base font-semibold text-[--color-foreground] truncate">
                                 {title}
                             </h1>
                             {isDirty && (
-                                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-xs font-medium border border-amber-200">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+                                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-warning/10 text-warning text-xs font-medium border border-warning/40">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-warning inline-block" />
                                     Unsaved
                                 </span>
                             )}
                             {submitSuccess && (
-                                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200">
+                                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-success/10 text-success text-xs font-medium border border-success/40">
                                     <CheckIcon className="w-3 h-3" />
                                     Saved
                                 </span>
@@ -74,9 +76,30 @@ export function FormLayout({
                         <div className="flex items-center gap-2 shrink-0">
                             <button
                                 type="button"
+                                onClick={toggleTheme}
+                                aria-label={
+                                    isDark
+                                        ? 'Switch to light mode'
+                                        : 'Switch to dark mode'
+                                }
+                                title={
+                                    isDark
+                                        ? 'Switch to light mode'
+                                        : 'Switch to dark mode'
+                                }
+                                className="p-2 text-muted-foreground rounded-lg hover:bg-muted hover:text-foreground transition-colors"
+                            >
+                                {isDark ? (
+                                    <SunIcon className="w-4 h-4" />
+                                ) : (
+                                    <MoonIcon className="w-4 h-4" />
+                                )}
+                            </button>
+                            <button
+                                type="button"
                                 onClick={onReset}
                                 disabled={loading || !isDirty || isFormReadOnly}
-                                className="px-3 py-1.5 text-sm font-medium text-slate-600 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                className="px-3 py-1.5 text-sm font-medium text-muted-foreground rounded-lg hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                             >
                                 Reset
                             </button>
@@ -85,7 +108,7 @@ export function FormLayout({
                                 disabled={loading || !isDirty || isFormReadOnly}
                                 className={`inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold rounded-lg transition-all ${
                                     loading || !isDirty || isFormReadOnly
-                                        ? 'bg-slate-100 text-slate-400 shadow-none cursor-not-allowed'
+                                        ? 'bg-muted text-muted-foreground shadow-none cursor-not-allowed'
                                         : 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 cursor-pointer'
                                 }`}
                             >
@@ -105,43 +128,43 @@ export function FormLayout({
                 {/* ── Page body ────────────────────────────────────────── */}
                 <div className="max-w-5xl mx-auto px-6 py-8 space-y-2">
                     {error && (
-                        <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
+                        <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/40 text-destructive text-sm">
                             {error}
                         </div>
                     )}
 
                     {isFormReadOnly && !loading && (
-                        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 text-sm">
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-muted border border-border text-muted-foreground text-sm">
                             This form is read-only — you don&apos;t have edit
                             access.
                         </div>
                     )}
 
                     {isNewRecord && loading && (
-                        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-800 text-sm">
-                            <SpinnerIcon className="w-4 h-4 text-indigo-500" />
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-info/10 border border-info/40 text-info text-sm">
+                            <SpinnerIcon className="w-4 h-4 text-info" />
                             Creating new record…
                         </div>
                     )}
 
                     {isNewRecord && !loading && (
-                        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-800 text-sm">
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0 inline-block" />
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-info/10 border border-info/40 text-info text-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-info shrink-0 inline-block" />
                             New record — fill in the fields and save
                         </div>
                     )}
 
                     {/* ── Form card ──────────────────────────────────────── */}
-                    <div className="bg-white rounded-xl border border-[--color-border] shadow-sm overflow-hidden">
+                    <div className="bg-background rounded-xl border border-[--color-border] shadow-sm overflow-hidden">
                         {loading ? (
                             <div className="flex flex-col items-center gap-3 py-20">
                                 <SpinnerIcon className="w-7 h-7 text-[--color-primary]" />
-                                <p className="text-sm text-slate-400">
+                                <p className="text-sm text-muted-foreground">
                                     Loading form…
                                 </p>
                             </div>
                         ) : sections.length === 0 ? (
-                            <div className="flex flex-col items-center gap-2 py-20 text-slate-400">
+                            <div className="flex flex-col items-center gap-2 py-20 text-muted-foreground">
                                 <p className="text-sm">No fields available</p>
                             </div>
                         ) : (
@@ -156,7 +179,7 @@ export function FormLayout({
                                                 {section.Name && (
                                                     <div className="flex items-center gap-3 mb-6">
                                                         <span className="w-0.5 h-4 rounded-full bg-[--color-primary] shrink-0" />
-                                                        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                                                        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
                                                             {section.Name}
                                                         </h2>
                                                     </div>
@@ -229,11 +252,11 @@ export function FormLayout({
                                                 <div className="px-8 py-5 flex items-center justify-between">
                                                     <div className="flex items-center gap-3">
                                                         <span className="w-0.5 h-4 rounded-full bg-[--color-primary] shrink-0" />
-                                                        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                                                        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
                                                             {section.Name}
                                                         </h2>
                                                         {rows.length > 0 && (
-                                                            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-xs font-medium">
+                                                            <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
                                                                 {rows.length}
                                                             </span>
                                                         )}
@@ -280,8 +303,8 @@ export function FormLayout({
                                 })}
 
                                 {hasErrors && (
-                                    <div className="px-8 py-4 border-t border-red-100 bg-red-50/60">
-                                        <p className="text-xs text-red-600 font-medium">
+                                    <div className="px-8 py-4 border-t border-destructive/30 bg-destructive/10">
+                                        <p className="text-xs text-destructive font-medium">
                                             {totalErrorCount} validation
                                             error(s) — review fields above.
                                         </p>
@@ -301,15 +324,15 @@ export function FormLayout({
                             ].map(({ label, data }) => (
                                 <details
                                     key={label}
-                                    className="group bg-white rounded-lg border border-[--color-border] overflow-hidden text-xs"
+                                    className="group bg-background rounded-lg border border-[--color-border] overflow-hidden text-xs"
                                 >
-                                    <summary className="px-5 py-3 cursor-pointer select-none flex items-center justify-between font-medium text-slate-600 hover:bg-slate-50">
+                                    <summary className="px-5 py-3 cursor-pointer select-none flex items-center justify-between font-medium text-muted-foreground hover:bg-muted">
                                         {label}
-                                        <span className="text-slate-400 transition-transform group-open:rotate-180">
+                                        <span className="text-muted-foreground transition-transform group-open:rotate-180">
                                             ⌄
                                         </span>
                                     </summary>
-                                    <pre className="px-5 py-4 bg-slate-50 border-t border-[--color-border] overflow-x-auto text-slate-700 leading-relaxed">
+                                    <pre className="px-5 py-4 bg-muted border-t border-[--color-border] overflow-x-auto text-foreground leading-relaxed">
                                         {JSON.stringify(data, null, 2)}
                                     </pre>
                                 </details>

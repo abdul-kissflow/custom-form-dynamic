@@ -33,8 +33,8 @@ export function TableRatingField({ field, value, onChange, onBlur, disabled }) {
                         <Star
                             className={`w-4 h-4 transition-colors ${
                                 filled
-                                    ? 'fill-amber-400 text-amber-400'
-                                    : 'fill-transparent text-gray-300'
+                                    ? 'fill-warning text-warning'
+                                    : 'fill-transparent text-muted-foreground'
                             }`}
                         />
                     </button>
