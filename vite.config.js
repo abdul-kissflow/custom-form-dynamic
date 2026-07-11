@@ -5,7 +5,6 @@ import { writeFileSync } from 'fs'
 import { resolve } from 'path'
 import tailwindcss from '@tailwindcss/vite'
 
-
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
@@ -15,7 +14,7 @@ export default defineConfig({
             name: 'emit-manifest-vite-plugin',
             writeBundle() {
                 const manifestContent = {
-                    Category: 'Page',
+                    Category: 'Form',
                     Framework: 'React',
                 }
                 const outputPath = resolve(__dirname, 'dist/manifest.json')
@@ -31,10 +30,10 @@ export default defineConfig({
         target: 'es2022',
     },
     resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+        alias: {
+            '@': path.resolve(__dirname, './src'),
+        },
     },
-  },
     server: {
         https: {
             cert: path.resolve('./cert/localhost.crt'),
